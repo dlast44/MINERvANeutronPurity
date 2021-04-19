@@ -39,6 +39,8 @@
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/HistWrapper.h"
 
+#include "syst/CVUniverse.h"
+
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
 #endif
