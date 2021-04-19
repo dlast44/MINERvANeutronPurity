@@ -1,1 +1,7 @@
-This repository serves as the home for the analysis code for my neutron purity studies and ideally my pure neutron-selected neutrino sample down the line. -David Last (dlast@sas.upenn.edu/lastd44@gmail.com)
+This repository serves as the home for the analysis code for my neutron purity studies and ideally my pure neutron-selected neutrino sample down the line. It is intended to exist purely in the MINERvA MAT framework at conception.
+-David Last (dlast@sas.upenn.edu/lastd44@gmail.com)
+
+TODOs:
+1) Need to modify this to be nicer at some point.
+2) Installation instructions.
+3) Build useful structure for neutron blobs. Etc. Etc.

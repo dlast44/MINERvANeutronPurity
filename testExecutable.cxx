@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <bitset>
+#include <time.h>
 
 //ROOT includes
 #include "TInterpreter.h"
@@ -36,21 +37,34 @@
 #include "TLegend.h"
 
 //PlotUtils includes??? Trying anything at this point...
-#include "PlotUtile/MnvH1D"
+#include "PlotUtils/HistWrapper.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
 #endif
 
-//UnfoldUtils includes???
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include "MinervaUnfold/MnvUnfold.h"
-
 int main(int argc, char* argv[]) {
+
+  #ifndef NCINTEX
+  ROOT::Cintex::Cintex::Enable();
+  #endif
+
   if (argc > 1){
     std::cout << "You don't understand this do you..." << std::endl;
   }
+
+  srand( (unsigned)time(NULL) );
+
+  PlotUtils::MnvH1D* HelloWorld = new PlotUtils::MnvH1D("h_HelloWorld","Testing to see if I can properly handle a MnvH1D at the simplest level...",100,0.0,1.0);
+
+  for (int i=0; i<100000;++i){
+    HelloWorld->Fill((float)rand()/RAND_MAX);
+  }
+
+  TCanvas* c1 = new TCanvas("c1","c1",800,800);
+  c1->cd();
+  HelloWorld->Draw();
+  c1->Print("HELLO_WORLD_WITH_CINTEX.pdf");
 
   std::cout << "HEY YOU DID IT" << std::endl;
   return 0;

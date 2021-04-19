@@ -6,9 +6,9 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(MINERvANeutronPurity)
 
-#Copying Andrew's Compiler Flags (NOTE: STD of c++1y is worth keeping an eye on if things start behaving unexpectedly...)
+#Copying Andrew's Compiler Flags (NOTE: STD of c++1y is worth keeping an eye on if things start behaving unexpectedly... TRYING TO CHANGE TO ++11... THAT DIDN'T WORK EITHER... Hmmm....)
 #Also note that this defines the BUILD_TYPE it seems????????
-set( GCC_Flags_For_CXX "-std=c++1y -Wall" )
+set( GCC_Flags_For_CXX "-std=c++11 -Wall" )
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_Flags_For_CXX}" )
 set( CMAKE_CXX_FLAGS_DEBUG "-ggdb" )
 set( CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG" )
@@ -47,15 +47,15 @@ find_package(PlotUtils REQUIRED)
 include_directories(${PlotUtils_INCLUDE_DIR})
 message("Included PlotUtils from ${PlotUtils_INCLUDE_DIR}")
 
-find_package(UnfoldUtils REQUIRED)
-include_directories(${UnfoldUtils_INCLUDE_DIR})
-message("Included UnfoldUtils from ${UnfoldUtils_INCLUDE_DIR}")
+#find_package(UnfoldUtils REQUIRED)
+#include_directories(${UnfoldUtils_INCLUDE_DIR})
+#message("Included UnfoldUtils from ${UnfoldUtils_INCLUDE_DIR}")
 
 #Build main executables
 add_executable(testExecutable testExecutable.cxx)
 
 #link
-target_link_libraries(testExecutable ${ROOT_LIBRARIES} PlotUtils UnfoldUtils)
+target_link_libraries(testExecutable ${ROOT_LIBRARIES} PlotUtils)
 
 #install
 install(TARGETS testExecutable DESTINATION bin)
