@@ -66,25 +66,32 @@ int main(int argc, char* argv[]) {
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
+  std::map< std::string, std::vector<CVUniverse*>> error_bands;
+  error_bands["CV"].push_back(CV);
   
-  PlotUtils::MnvH1D* h_nTracks = new PlotUtils::MnvH1D("h_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0);
-  PlotUtils::MnvH1D* h_nBlobs = new PlotUtils::MnvH1D("h_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0);
+  PlotUtils::HistWrapper<CVUniverse> hw_nTracks("hw_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0,error_bands);
+  //PlotUtils::MnvH1D* h_nBlobs = new PlotUtils::MnvH1D("h_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0);
   
   for (int i=0; i<chain->GetEntries();++i){
-    CV->SetEntry(i);
-    if (PassesCuts(*CV)){
-      if (i==0) std::cout << "HI" << std::endl;
-      h_nTracks->Fill(CV->GetNTracks());
-      h_nBlobs->Fill(CV->GetNNeutBlobs());
+    for (auto band : error_bands){
+      std::vector<CVUniverse*> error_band_universes = band.second;
+      for (auto universe : error_band_universes){
+	universe->SetEntry(i);
+	if (PassesCuts(*universe)){
+	  hw_nTracks.univHist(universe)->Fill(universe->GetNTracks());
+	  hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
+	}
+      }
     }
   }
-  
+
   TCanvas* c1 = new TCanvas("c1","c1",800,800);
   c1->cd();
-  h_nTracks->Draw();
-  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nTracks_Demonstrations.pdf");
-  h_nBlobs->Draw();
-  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nBlobs_Demonstrations.pdf");
+  hw_nTracks.hist->Draw();
+  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nTracks_Demonstrations3.pdf");
+  hw_nBlobs.hist->Draw();
+  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nBlobs_Demonstrations3.pdf");
 
   std::cout << "HEY YOU DID IT!!!" << std::endl;
   return 0;
