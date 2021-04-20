@@ -41,14 +41,14 @@
 #include "PlotUtils/makeChainWrapper.h"
 
 #include "syst/CVUniverse.h"
+#include "syst/NTracksShiftUniverse.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
 #endif
 
 bool PassesCuts(CVUniverse& univ){
-  bool tmp = univ.SetNFluxUniverses(0);
-  return tmp;
+  return univ.GetNTracks() > 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -66,8 +66,12 @@ int main(int argc, char* argv[]) {
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
+  NTracksShiftUniverse* NT_P1 = new NTracksShiftUniverse(chain, +1);
+  NTracksShiftUniverse* NT_M1 = new NTracksShiftUniverse(chain, -1);
   std::map< std::string, std::vector<CVUniverse*>> error_bands;
-  error_bands["CV"].push_back(CV);
+  error_bands[std::string("CV")].push_back(CV);
+  error_bands[std::string("NT")].push_back(NT_P1);
+  error_bands[std::string("NT")].push_back(NT_M1);
   
   PlotUtils::HistWrapper<CVUniverse> hw_nTracks("hw_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0,error_bands);
@@ -88,10 +92,15 @@ int main(int argc, char* argv[]) {
 
   TCanvas* c1 = new TCanvas("c1","c1",800,800);
   c1->cd();
-  hw_nTracks.hist->Draw();
-  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nTracks_Demonstrations3.pdf");
-  hw_nBlobs.hist->Draw();
-  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nBlobs_Demonstrations3.pdf");
+  for (auto band : error_bands){
+    int i=0;
+    std::vector<CVUniverse*> error_band_universes = band.second;
+    for (auto universe : error_band_universes){
+      ++i;
+      hw_nTracks.univHist(universe)->Draw();
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
+    }
+  }
 
   std::cout << "HEY YOU DID IT!!!" << std::endl;
   return 0;
