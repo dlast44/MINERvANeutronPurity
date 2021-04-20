@@ -1,7 +1,7 @@
-//File: testExecutable.cxx
-//Info: This is a test executable for the CMake build structure to include ROOT and PlotUtils (and UnfoldUtils?) properly...
+//File: EventLoop.cxx
+//Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: testExecutable <single_MasterAnaDev_NTuple_input>
+//Usage: EventLoop.cxx <single_MasterAnaDev_NTuple_input>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -41,7 +41,7 @@
 #include "PlotUtils/makeChainWrapper.h"
 
 #include "syst/CVUniverse.h"
-#include "syst/NTracksShiftUniverse.h"
+//#include "syst/NTracksShiftUniverse.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
@@ -66,12 +66,12 @@ int main(int argc, char* argv[]) {
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
-  NTracksShiftUniverse* NT_P1 = new NTracksShiftUniverse(chain, +1);
-  NTracksShiftUniverse* NT_M1 = new NTracksShiftUniverse(chain, -1);
+  //NTracksShiftUniverse* NT_P1 = new NTracksShiftUniverse(chain, +1);
+  //NTracksShiftUniverse* NT_M1 = new NTracksShiftUniverse(chain, -1);
   std::map< std::string, std::vector<CVUniverse*>> error_bands;
   error_bands[std::string("CV")].push_back(CV);
-  error_bands[std::string("NT")].push_back(NT_P1);
-  error_bands[std::string("NT")].push_back(NT_M1);
+  //error_bands[std::string("NT")].push_back(NT_P1);
+  //error_bands[std::string("NT")].push_back(NT_M1);
   
   PlotUtils::HistWrapper<CVUniverse> hw_nTracks("hw_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0,error_bands);
