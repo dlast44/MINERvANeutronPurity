@@ -1,8 +1,7 @@
 //File: testExecutable.cxx
 //Info: This is a test executable for the CMake build structure to include ROOT and PlotUtils (and UnfoldUtils?) properly...
 //
-//Usage: testExecutable
-//
+//Usage: testExecutable <single_MasterAnaDev_NTuple_input>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -38,6 +37,8 @@
 
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/HistWrapper.h"
+#include "PlotUtils/ChainWrapper.h"
+#include "PlotUtils/makeChainWrapper.h"
 
 #include "syst/CVUniverse.h"
 
@@ -45,30 +46,47 @@
 #include "Cintex/Cintex.h"
 #endif
 
+bool PassesCuts(CVUniverse& univ){
+  bool tmp = univ.SetNFluxUniverses(0);
+  return tmp;
+}
+
 int main(int argc, char* argv[]) {
 
   #ifndef NCINTEX
   ROOT::Cintex::Cintex::Enable();
   #endif
 
-  if (argc > 1){
-    std::cout << "You don't understand this do you..." << std::endl;
+  //Pass an input file name to this script now
+  if (argc != 2) {
+    std::cout << "You don't understand this do you... You need a single input file!!!!!!!!!!!" << std::endl;
+    return 1;
   }
-
-  srand( (unsigned)time(NULL) );
-
-  PlotUtils::MnvH1D* HelloWorld = new PlotUtils::MnvH1D("h_HelloWorld","Testing to see if I can properly handle a MnvH1D at the simplest level...",100,0.0,1.0);
-
-  for (int i=0; i<100000;++i){
-    HelloWorld->Fill((float)rand()/RAND_MAX);
+  
+  PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
+  
+  CVUniverse* CV = new CVUniverse(chain);
+  
+  PlotUtils::MnvH1D* h_nTracks = new PlotUtils::MnvH1D("h_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0);
+  PlotUtils::MnvH1D* h_nBlobs = new PlotUtils::MnvH1D("h_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0);
+  
+  for (int i=0; i<chain->GetEntries();++i){
+    CV->SetEntry(i);
+    if (PassesCuts(*CV)){
+      if (i==0) std::cout << "HI" << std::endl;
+      h_nTracks->Fill(CV->GetNTracks());
+      h_nBlobs->Fill(CV->GetNNeutBlobs());
+    }
   }
-
+  
   TCanvas* c1 = new TCanvas("c1","c1",800,800);
   c1->cd();
-  HelloWorld->Draw();
-  c1->Print("HELLO_WORLD_WITH_CINTEX.pdf");
+  h_nTracks->Draw();
+  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nTracks_Demonstrations.pdf");
+  h_nBlobs->Draw();
+  c1->Print("/minerva/app/users/dlast/BASIC_MAT_nBlobs_Demonstrations.pdf");
 
-  std::cout << "HEY YOU DID IT" << std::endl;
+  std::cout << "HEY YOU DID IT!!!" << std::endl;
   return 0;
 
 }

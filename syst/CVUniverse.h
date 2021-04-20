@@ -22,10 +22,12 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   #include "PlotUtils/SystCalcs/TruthFunctions.h"
 
   //Useful naming grab based on the inherent object in the class iself that should work *crosses fingers*
-  virtual std::string GetAnaToolName() const { return (std::string)m_chw->GetName(); }
+  //virtual std::string GetAnaToolName() const { return (std::string)m_chw->GetName(); }
 
   //Initial Reco Branches to investigate
-  virtual int GetNTracks() const { return GetInt("multiplicity") };
-  virtual int GetNNeutBlobs() const { return GetInt((GetAnaToolName()+"_BlobIs3D_sz").c_str())};
+  virtual int GetNTracks() const { return GetInt("multiplicity"); };
+  virtual int GetNNeutBlobs() const { return GetInt("MasterAnaDev_BlobIs3D_sz");};
 
-}
+};
+
+#endif
