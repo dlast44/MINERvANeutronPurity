@@ -52,10 +52,10 @@ message("Included PlotUtils from ${PlotUtils_INCLUDE_DIR}")
 #message("Included UnfoldUtils from ${UnfoldUtils_INCLUDE_DIR}")
 
 #Build main executables
-add_executable(testExecutable testExecutable.cxx)
+add_executable(EventLoop EventLoop.cxx)
 
 #link
-target_link_libraries(testExecutable ${ROOT_LIBRARIES} PlotUtils)
+target_link_libraries(EventLoop ${ROOT_LIBRARIES} PlotUtils)
 
 #install
-install(TARGETS testExecutable DESTINATION bin)
+install(TARGETS EventLoop DESTINATION bin)

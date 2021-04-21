@@ -34,6 +34,7 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TLegend.h"
+#include "TMath.h"
 
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/HistWrapper.h"
@@ -41,14 +42,46 @@
 #include "PlotUtils/makeChainWrapper.h"
 
 #include "syst/CVUniverse.h"
-//#include "syst/NTracksShiftUniverse.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
 #endif
 
+bool PassesTgt5FVCuts(CVUniverse& univ){
+  std::vector<double> vtx = univ.GetVtx();
+  double side = 850.0*2.0/sqrt(3.0);
+  if (vtx[2] < 5756.71 || vtx[2] > 5801.24 ) return false;
+  if (fabs(vtx[0]) > 850.00) return false;
+  double slope = 1.0/sqrt(3.0);
+  
+  if(fabs(vtx[1]) < side - slope*fabs(vtx[0]))return true;
+  return false;
+}
+
+bool PassesCleanCCAntiNuCuts(CVUniverse& univ){
+  return 
+    (univ.GetNDeadDiscriminatorsUpstreamMuon() < 2) &&
+    (univ.GetNuHelicity() == 2) &&
+    (univ.GetIsMinosMatch() == 1) &&
+    (TMath::RadToDeg()*univ.GetThetamu() < 20.0) &&
+    (univ.GetPmu() < 20000.0 && univ.GetPmu() > 1500.0);
+}
+
+bool PassesTejinCCQECuts(CVUniverse& univ){
+  //bool PassesRecoilECut = false;
+  //recoil energy cut and Q2 calculation
+  return 
+    (univ.GetNTracks() == 1) &&
+    (univ.GetNEMBlobs() < 2) &&
+    (univ.GetTotalEMBlobEnergy() >= 10.0*univ.GetTotalEMBlobNHits()) &&
+    (univ.GetNImprovedMichel() > 0);
+}
+
 bool PassesCuts(CVUniverse& univ){
-  return univ.GetNTracks() > 0;
+  return
+    PassesTgt5FVCuts(univ) &&
+    PassesCleanCCAntiNuCuts(univ) &&
+    PassesTejinCCQECuts(univ);
 }
 
 int main(int argc, char* argv[]) {
@@ -66,16 +99,10 @@ int main(int argc, char* argv[]) {
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
-  //NTracksShiftUniverse* NT_P1 = new NTracksShiftUniverse(chain, +1);
-  //NTracksShiftUniverse* NT_M1 = new NTracksShiftUniverse(chain, -1);
   std::map< std::string, std::vector<CVUniverse*>> error_bands;
   error_bands[std::string("CV")].push_back(CV);
-  //error_bands[std::string("NT")].push_back(NT_P1);
-  //error_bands[std::string("NT")].push_back(NT_M1);
   
-  PlotUtils::HistWrapper<CVUniverse> hw_nTracks("hw_nTracks","Check this against the input file "+TString(argv[1])+" multiplicity",10,0.0,10.0,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0,error_bands);
-  //PlotUtils::MnvH1D* h_nBlobs = new PlotUtils::MnvH1D("h_nBlobs","Check this against the input file "+TString(argv[1])+" MasterAnaDev_BlobIs3D_sz",100,0.0,100.0);
+  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection (04-20-2021 10:54 PM)",100,0.0,100.0,error_bands);
   
   for (int i=0; i<chain->GetEntries();++i){
     for (auto band : error_bands){
@@ -83,7 +110,6 @@ int main(int argc, char* argv[]) {
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	if (PassesCuts(*universe)){
-	  hw_nTracks.univHist(universe)->Fill(universe->GetNTracks());
 	  hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
 	}
       }
@@ -97,8 +123,8 @@ int main(int argc, char* argv[]) {
     std::vector<CVUniverse*> error_band_universes = band.second;
     for (auto universe : error_band_universes){
       ++i;
-      hw_nTracks.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
+      hw_nBlobs.univHist(universe)->Draw();
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
     }
   }
 
