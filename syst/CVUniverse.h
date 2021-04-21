@@ -27,16 +27,28 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   //Initial Reco Branches to investigate
   virtual int GetNTracks() const { return GetInt("multiplicity"); };
   virtual int GetNNeutBlobs() const { return GetInt("MasterAnaDev_BlobIs3D_sz"); };
-  virtual int GetNEMBlobs() const { return GetInt("nonvtx_iso_blobs_start_position_z_in_prong_sz"); };
+  virtual std::vector<double> GetEMBlobStartZVec() const { return GetVec<double>("nonvtx_iso_blobs_start_position_z_in_prong"); };
   virtual std::vector<int> GetEMBlobNHitsVec() const { return GetVec<int>("nonvtx_iso_blobs_n_hits_in_prong"); };
   virtual std::vector<double> GetEMBlobEnergyVec() const { return GetVec<double>("nonvtx_iso_blobs_energy_in_prong"); };
-  virtual double GetTotalEMBlobNHits() const { 
+  virtual std::vector<double> GetEMNBlobsTotalEnergyTotalNHits(double shift = 0) const {
+    std::vector<double> info;
+    double nBlobs = 0;
+    double totalE = shift;
+    double nHits = 0;
+    std::vector<double> StartZVec = GetEMBlobStartZVec();
+    std::vector<double> EnergyVec = GetEMBlobEnergyVec();
     std::vector<int> NHitsVec = GetEMBlobNHitsVec();
-    return std::accumulate(NHitsVec.begin(), NHitsVec.end(), 0.0);
-  };
-  virtual double GetTotalEMBlobEnergy(double shift = 0.0) const { 
-    std::vector<double> EVec = GetEMBlobEnergyVec();
-    return std::accumulate(EVec.begin(), EVec.end(), shift);
+    for (unsigned int i=0; i<StartZVec.size(); ++i){
+      if (StartZVec.at(i) > 4750.0){
+	nBlobs+=1.0;
+	totalE+=EnergyVec.at(i);
+	nHits+=(double)NHitsVec.at(i);
+      }
+    }
+    info.push_back(nBlobs);
+    info.push_back(totalE);
+    info.push_back(nHits);
+    return info;
   };
 
   virtual std::vector<double> GetVtx() const { return GetVec<double>("vtx"); };

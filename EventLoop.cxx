@@ -69,11 +69,12 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ){
 
 bool PassesTejinCCQECuts(CVUniverse& univ){
   //bool PassesRecoilECut = false;
-  //recoil energy cut and Q2 calculation
+  //recoil energy cut and Q2 calculation are unclear to me. Need investigate...
+  std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
   return 
     (univ.GetNTracks() == 1) &&
-    (univ.GetNEMBlobs() < 2) &&
-    (univ.GetTotalEMBlobEnergy() >= 10.0*univ.GetTotalEMBlobNHits()) &&
+    (EMBlobInfo.at(0) < 2) &&
+    (EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2)) &&
     (univ.GetNImprovedMichel() > 0);
 }
 
@@ -102,7 +103,7 @@ int main(int argc, char* argv[]) {
   std::map< std::string, std::vector<CVUniverse*>> error_bands;
   error_bands[std::string("CV")].push_back(CV);
   
-  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection (04-20-2021 10:54 PM)",100,0.0,100.0,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection (04-21-2021 1:41 AM)",100,0.0,100.0,error_bands);
   
   for (int i=0; i<chain->GetEntries();++i){
     for (auto band : error_bands){
@@ -124,7 +125,7 @@ int main(int argc, char* argv[]) {
     for (auto universe : error_band_universes){
       ++i;
       hw_nBlobs.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_modified_EM_cut_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
     }
   }
 
