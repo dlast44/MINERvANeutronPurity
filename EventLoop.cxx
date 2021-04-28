@@ -62,7 +62,8 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ){
   return 
     (univ.GetNDeadDiscriminatorsUpstreamMuon() < 2) &&
     (univ.GetNuHelicity() == 2) &&
-    (univ.GetIsMinosMatch() == 1) &&
+    //    (univ.GetIsMinosMatchTrackOLD() == 1) &&
+    (univ.GetIsMinosMatchTrack() == 1) &&
     (TMath::RadToDeg()*univ.GetThetamu() < 20.0) &&
     (univ.GetPmu() < 20000.0 && univ.GetPmu() > 1500.0);
 }
@@ -103,9 +104,12 @@ int main(int argc, char* argv[]) {
   std::map< std::string, std::vector<CVUniverse*>> error_bands;
   error_bands[std::string("CV")].push_back(CV);
   
-  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection (04-21-2021 1:41 AM)",100,0.0,100.0,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
   
-  for (int i=0; i<chain->GetEntries();++i){
+  int nEntries = chain->GetEntries();
+  std::cout << "Processing " << nEntries << " events." << std::endl;
+  for (int i=0; i<nEntries;++i){
+    if (i%(nEntries/100)==0) std::cout << (100*i)/nEntries << "% finished." << std::endl;
     for (auto band : error_bands){
       std::vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
@@ -125,7 +129,7 @@ int main(int argc, char* argv[]) {
     for (auto universe : error_band_universes){
       ++i;
       hw_nBlobs.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_modified_EM_cut_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+".pdf");
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_modified_EM_cut_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+"_MAD_6D_full_test.pdf");
     }
   }
 

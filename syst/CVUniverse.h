@@ -56,7 +56,10 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   virtual int GetNImprovedMichel() const { return GetInt("improved_michel_vertex_type_sz"); };
 
   virtual int GetNDeadDiscriminatorsUpstreamMuon() const { return GetInt("phys_n_dead_discr_pair_upstream_prim_track_proj"); };
-  virtual int GetIsMinosMatch() const { return GetInt("isMinosMatchTrack"); };
+  virtual int GetIsMinosMatchTrack() const { return GetInt("isMinosMatchTrack"); };
+  virtual int GetIsMinosMatchTrackOLD() const { return GetInt("muon_is_minos_match_track"); };
+  virtual int GetIsMinosMatchStub() const { return GetInt("isMinosMatchStub"); };
+  virtual int GetIsMinosMatchStubOLD() const { return GetInt("muon_is_minos_match_stub"); };
   virtual int GetNuHelicity() const { return GetInt("MasterAnaDev_nuHelicity"); };
 
 };
