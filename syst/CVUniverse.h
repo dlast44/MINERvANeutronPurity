@@ -7,6 +7,8 @@
 #define CVUNIVERSE_H
 
 #include "PlotUtils/MinervaUniverse.h"
+#include "obj/NeutCands.h"
+#include "TVector3.h"
 
 class CVUniverse: public PlotUtils::MinervaUniverse {
  public:
@@ -62,6 +64,51 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   virtual int GetIsMinosMatchStubOLD() const { return GetInt("muon_is_minos_match_stub"); };
   virtual int GetNuHelicity() const { return GetInt("MasterAnaDev_nuHelicity"); };
 
+  //Neutron Candidate Business
+  virtual int GetNNeutBlobs() const { return GetInt("MasterAnaDev_BlobID_sz"); };
+
+  virtual NeutronCandidates::NeutCand GetNeutCand(int index) const{
+    std::vector<double> vtx = GetVtx();
+    TVector3 EvtVtx;
+    EvtVtx.setXYZ(vtx.at(0),vtx.at(1),vtx.at(2));
+    NeutronCandidates::intCandData intData;
+    NeutronCandidates::doubleCandData doubleData;
+    for (const auto& intMember: NeutronCandidates::IntBranchList){
+      intData[intMember.first]={}
+      for (const auto& branchName: intMember.second){
+	intData[intMember.first].push_back(GetVecElemInt("MasterAnaDev"+branchName),index);
+      }
+    }
+    for (const auto& doubleMember: NeutronCandidates::DoubleBranchList){
+      doubleData[doubleMember.first]={}
+      for (const auto& branchName: doubleMember.second){
+	doubleData[doubleMember.first].push_back(GetVecElem("MasterAnaDev"+branchName),index);
+      }
+    }
+    return NeutronCandidates::NeutCand(intData,doubleData,EvtVtx);
+  };
+  
+  virtual NeutronCandidates::NeutCands GetNeutCands() const{
+    std::vector<NeutronCandidates::NeutCand> cands;
+    int nBlobs = GetNNeutBlobs();
+    for(int neutBlobIndex=0; neutBlobIndex < nBlobs; ++neutBlobIndex){
+      cands.push_back(GetNeutCand(neutBlobIndex));
+    }
+    NeutronCandidates::NeutCands EvtCands(cands);
+    return EvtCands;
+  };
+
+  virtual void UpdateNeutCands() const{
+    fNeutCands = GetNeutCands();
+  };
+
+  virtual bool CheckNeutBlobs() const{
+    return fNeutCands.GetCandidates.size()==GetNNeutBlobs();
+  }
+
+ private:
+  NeutronCandidates::NeutCands fNeutCands;
+  
 };
 
 #endif
