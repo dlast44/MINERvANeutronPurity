@@ -42,13 +42,16 @@
 #include "PlotUtils/makeChainWrapper.h"
 
 #include "syst/CVUniverse.h"
+#include "obj/NeutCands.h"
 
 #ifndef NCINTEX
 #include "Cintex/Cintex.h"
 #endif
 
+using namespace std;
+
 bool PassesTgt5FVCuts(CVUniverse& univ){
-  std::vector<double> vtx = univ.GetVtx();
+  vector<double> vtx = univ.GetVtx();
   double side = 850.0*2.0/sqrt(3.0);
   if (vtx[2] < 5756.71 || vtx[2] > 5801.24 ) return false;
   if (fabs(vtx[0]) > 850.00) return false;
@@ -71,7 +74,7 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ){
 bool PassesTejinCCQECuts(CVUniverse& univ){
   //bool PassesRecoilECut = false;
   //recoil energy cut and Q2 calculation are unclear to me. Need investigate...
-  std::vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
+  vector<double> EMBlobInfo = univ.GetEMNBlobsTotalEnergyTotalNHits();
   return 
     (univ.GetNTracks() == 1) &&
     (EMBlobInfo.at(0) < 2) &&
@@ -94,28 +97,31 @@ int main(int argc, char* argv[]) {
 
   //Pass an input file name to this script now
   if (argc != 2) {
-    std::cout << "You don't understand this do you... You need a single input file!!!!!!!!!!!" << std::endl;
+    cout << "You don't understand this do you... You need a single input file!!!!!!!!!!!" << endl;
     return 1;
   }
   
-  PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(std::string(argv[1]),"MasterAnaDev");
+  PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
-  std::map< std::string, std::vector<CVUniverse*>> error_bands;
-  error_bands[std::string("CV")].push_back(CV);
+  map< string, vector<CVUniverse*>> error_bands;
+  error_bands[string("CV")].push_back(CV);
   
   PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs_from_CandObj("hw_nBlobs_fromCandObj","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
   
   int nEntries = chain->GetEntries();
-  std::cout << "Processing " << nEntries << " events." << std::endl;
+  cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
-    if (i%(nEntries/100)==0) std::cout << (100*i)/nEntries << "% finished." << std::endl;
+    if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
     for (auto band : error_bands){
-      std::vector<CVUniverse*> error_band_universes = band.second;
+      vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
+	universe->UpdateNeutCands();
 	if (PassesCuts(*universe)){
 	  hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
+	  hw_nBlobs_from_CandObj.univHist(universe)->Fill(universe->GetNNeutCands());
 	}
       }
     }
@@ -125,15 +131,17 @@ int main(int argc, char* argv[]) {
   c1->cd();
   for (auto band : error_bands){
     int i=0;
-    std::vector<CVUniverse*> error_band_universes = band.second;
+    vector<CVUniverse*> error_band_universes = band.second;
     for (auto universe : error_band_universes){
       ++i;
       hw_nBlobs.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_modified_EM_cut_"+(TString)(universe->ShortName())+(TString)(std::to_string(i))+"_MAD_6D_full_test.pdf");
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_REFERENCE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_neutMC.pdf");
+      hw_nBlobs_from_CandObj.univHist(universe)->Draw();
+      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_from_CandObj_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_neutMCtest.pdf");
     }
   }
 
-  std::cout << "HEY YOU DID IT!!!" << std::endl;
+  cout << "HEY YOU DID IT!!!" << endl;
   return 0;
 
 }

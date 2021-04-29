@@ -65,30 +65,29 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   virtual int GetNuHelicity() const { return GetInt("MasterAnaDev_nuHelicity"); };
 
   //Neutron Candidate Business
-  virtual int GetNNeutBlobs() const { return GetInt("MasterAnaDev_BlobID_sz"); };
 
-  virtual NeutronCandidates::NeutCand GetNeutCand(int index) const{
+  virtual NeutronCandidates::NeutCand GetNeutCand(int index){
     std::vector<double> vtx = GetVtx();
     TVector3 EvtVtx;
-    EvtVtx.setXYZ(vtx.at(0),vtx.at(1),vtx.at(2));
+    EvtVtx.SetXYZ(vtx.at(0),vtx.at(1),vtx.at(2));
     NeutronCandidates::intCandData intData;
     NeutronCandidates::doubleCandData doubleData;
-    for (const auto& intMember: NeutronCandidates::IntBranchList){
-      intData[intMember.first]={}
+    for (const auto& intMember: NeutronCandidates::GetBranchIntMap()){
+      intData[intMember.first]={};
       for (const auto& branchName: intMember.second){
-	intData[intMember.first].push_back(GetVecElemInt("MasterAnaDev"+branchName),index);
+	intData[intMember.first].push_back(GetVecElemInt(branchName,index));
       }
     }
-    for (const auto& doubleMember: NeutronCandidates::DoubleBranchList){
-      doubleData[doubleMember.first]={}
+    for (const auto& doubleMember: NeutronCandidates::GetBranchDoubleMap()){
+      doubleData[doubleMember.first]={};
       for (const auto& branchName: doubleMember.second){
-	doubleData[doubleMember.first].push_back(GetVecElem("MasterAnaDev"+branchName),index);
+	doubleData[doubleMember.first].push_back(GetVecElem(branchName,index));
       }
     }
     return NeutronCandidates::NeutCand(intData,doubleData,EvtVtx);
   };
   
-  virtual NeutronCandidates::NeutCands GetNeutCands() const{
+  virtual NeutronCandidates::NeutCands GetNeutCands(){
     std::vector<NeutronCandidates::NeutCand> cands;
     int nBlobs = GetNNeutBlobs();
     for(int neutBlobIndex=0; neutBlobIndex < nBlobs; ++neutBlobIndex){
@@ -98,17 +97,17 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
     return EvtCands;
   };
 
-  virtual void UpdateNeutCands() const{
-    fNeutCands = GetNeutCands();
+  virtual void UpdateNeutCands(){
+    NeutronCandidates::NeutCands candsIn = GetNeutCands();
+    fNeutCands = candsIn;
+    fNNeutCands = candsIn.GetNCands();
   };
 
-  virtual bool CheckNeutBlobs() const{
-    return fNeutCands.GetCandidates.size()==GetNNeutBlobs();
-  }
-
+  int GetNNeutCands(){ return fNNeutCands; }
+  
  private:
   NeutronCandidates::NeutCands fNeutCands;
-  
+  int fNNeutCands;
 };
 
 #endif

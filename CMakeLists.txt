@@ -54,8 +54,11 @@ message("Included PlotUtils from ${PlotUtils_INCLUDE_DIR}")
 #Build main executables
 add_executable(EventLoop EventLoop.cxx)
 
+#Build libraries that EventLoop depends on
+add_subdirectory(obj)
+
 #link
-target_link_libraries(EventLoop ${ROOT_LIBRARIES} PlotUtils)
+target_link_libraries(EventLoop ${ROOT_LIBRARIES} PlotUtils obj)
 
 #install
 install(TARGETS EventLoop DESTINATION bin)

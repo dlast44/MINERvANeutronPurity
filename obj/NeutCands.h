@@ -7,26 +7,52 @@
 #define NEUTCANDS_H
 
 #include "TVector3.h"
+#include "stdlib.h"
+#include <string>
+#include <vector>
+#include <map>
 
 namespace NeutronCandidates{
-  typedef intBranchMap std::map<std::string, std::vector<std::string>>;
-  typedef doubleBranchMap std::map<std::string, std::vector<std::string>>;
-  typedef intCandData std::map<std::string, std::vector<int>>;
-  typedef doubleCandData std::map<std::string, std::vector<double>>;
+  typedef std::map<std::string, std::vector<const char*>> intBranchMap;
+  typedef std::map<std::string, std::vector<const char*>> doubleBranchMap;
+  typedef std::map<std::string, std::vector<int>> intCandData;
+  typedef std::map<std::string, std::vector<double>> doubleCandData;
 
-  intBranchMap IntBranchMap{{"SetID",{"_BlobID"}}, {"SetIs3D",{"_BlobIs3D"}}};
-  doubleBranchMap DoubleBranchMap{{"SetTotE","_BlobTotalE"},{"SetBegPos",{"_BlobBegX","_BlobBegY","_BlobBegZ"}},{"SetEndPos",{"_BlobEndX","_BlobEndY","_BlobEndZ"}}};
+  intBranchMap GetBranchIntMap();
+  doubleBranchMap GetBranchDoubleMap();
 
   class NeutCand{
+  private:
+    //Currently only coding in the members that I actively use in MnvTgtNeutrons/particleCannon/nonMAT/interactiveMacros/Basic_Cuts_Try.cc
+    
+    int fID;
+    int fIs3D;
+    double fTotE;
+    double fAngleToFP;
+    TVector3 fEvtVtx;
+    TVector3 fBegPos;
+    TVector3 fEndPos;
+    TVector3 fDirection;
+    TVector3 fFlightPath;
+
+    void init();
+
   public:
     //CTOR
     NeutCand();
-    NeutCand(intCandData candIntData, doubleCandData candDoubleData, TVector3 vtx);
+    NeutCand(NeutronCandidates::intCandData candIntData, NeutronCandidates::doubleCandData candDoubleData, TVector3 vtx);
+
+    int GetID(){ return fID; };
+    int GetIs3D(){ return fIs3D; };
+    double GetTotalE(){ return fTotE; };
+    double GetAngleToFP(){ return fAngleToFP; };
+    TVector3 GetFlightPath(){ return fFlightPath; };
+    TVector3 GetDirection(){ return fDirection; };
 
     void SetID(std::vector<int> ID){ fID=ID.at(0); };
     void SetIs3D(std::vector<int> is3D){ fIs3D=is3D.at(0); };
-    void SetTotalE(std::vector<double> TotE){ fTotE=totE.at(0); };
-    void SetEvtVtx(std::vector<double>EvtVtx){ fEvtVtx.SetXYZ(EvtVtx.at(0),EvtVtx.at(1),EvtVtx.at(2)); };
+    void SetTotalE(std::vector<double> TotE){ fTotE=TotE.at(0); };
+    void SetEvtVtx(TVector3 EvtVtx){ fEvtVtx=EvtVtx; };
     //Move MULTI-LINE DEFINITIONS TO CPP...???
     void SetBegPos(std::vector<double> BegPos){
       fBegPos.SetXYZ(BegPos.at(0),BegPos.at(1),BegPos.at(2));
@@ -53,21 +79,16 @@ namespace NeutronCandidates{
 
     //DTOR
     virtual ~NeutCand() = default;
-  private:
-    //Currently only coding in the members that I actively use in MnvTgtNeutrons/particleCannon/nonMAT/interactiveMacros/Basic_Cuts_Try.cc
-    
-    int fID;
-    int fIs3D;
-    double fTotE;
-    double fAngleToFP = -999.0;
-    TVector3 fEvtVtx;
-    TVector3 fBegPos;
-    TVector3 fEndPos;
-    TVector3 fDirection;
-    TVector3 fFlightPath;
   };
 
   class NeutCands {
+  private:
+    int fNCands;
+    int fIDmaxE;
+    std::map<int, NeutCand> fCands;
+
+    void init();
+
   public:
     //CTORS
     NeutCands();
@@ -77,15 +98,14 @@ namespace NeutronCandidates{
     //DTOR
     virtual ~NeutCands() = default;
 
-    void SetCands(std::map<int, NeutCand> inCands){ fCands=inCands; }
+    void SetCands(std::map<int, NeutCand> inCands){ 
+      fCands=inCands; 
+      fNCands=inCands.size();
+    }
 
     int GetNCands(){ return fNCands; };
-    NeutCand GetCandidate(int ID){ return fCands[i]};
-    std::map<std::int, NeutCand> GetCandidates(){ return fCands; };
-  private:
-    int fNCands;
-    int fIDmaxE = -1;
-    std::map<int, NeutCand> fCands;
+    NeutCand GetCandidate(int ID){ return fCands[ID]; };
+    std::map<int, NeutCand> GetCandidates(){ return fCands; };
   };
 }
 #endif
