@@ -8,7 +8,7 @@
 namespace NeutronCandidates{
 
   intBranchMap GetBranchIntMap(){
-    return {{"SetID",{"MasterAnaDev_BlobID"}},{"3D",{"MasterAnaDev_BlobIs3D"}},};
+    return {{"SetID",{"MasterAnaDev_BlobID"}},{"3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
   }
 
   doubleBranchMap GetBranchDoubleMap(){
@@ -25,6 +25,8 @@ namespace NeutronCandidates{
     for(const auto& function: candIntData){
       if (function.first=="SetID") this->SetID(function.second);
       else if (function.first=="SetIs3D") this->SetIs3D(function.second);
+      else if (function.first=="SetMCPID") this->SetMCPID(function.second);
+      else if (function.first=="SetTopMCPID") this->SetTopMCPID(function.second);
       else continue;
     }
     for(const auto& function:candDoubleData){
@@ -40,6 +42,9 @@ namespace NeutronCandidates{
     tmp.SetXYZ(0.0,0.0,0.0);
     fID = -1;
     fIs3D = -999;
+    fMCPID = -999;
+    fTopMCPID = -999;
+    fMCParentTrackID = -999;
     fTotE = -999.0;
     fAngleToFP = -999.0;
     fEvtVtx=tmp;
@@ -48,7 +53,6 @@ namespace NeutronCandidates{
     fFlightPath=tmp;
     tmp.~TVector3();
   }
-  
   
   NeutCands::NeutCands(){
     this->init();

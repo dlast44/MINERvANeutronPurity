@@ -1,0 +1,4 @@
+/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126565_126578_04_26_2021.root
+/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126579_126589_04_26_2021.root
+/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126590_126599_04_26_2021.root
+/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126600_126609_04_26_2021.root

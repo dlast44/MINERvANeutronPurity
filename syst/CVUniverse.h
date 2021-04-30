@@ -103,6 +103,8 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
     fNNeutCands = candsIn.GetNCands();
   };
 
+  NeutronCandidates::NeutCands GetCurrentNeutCands() { return fNeutCands; };
+
   int GetNNeutCands(){ return fNNeutCands; }
   
  private:

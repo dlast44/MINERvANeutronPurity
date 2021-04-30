@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <single_MasterAnaDev_NTuple_input>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -50,10 +50,10 @@
 
 using namespace std;
 
-bool PassesTgt5FVCuts(CVUniverse& univ){
+bool PassesFVCuts(CVUniverse& univ){
   vector<double> vtx = univ.GetVtx();
   double side = 850.0*2.0/sqrt(3.0);
-  if (vtx[2] < 5756.71 || vtx[2] > 5801.24 ) return false;
+  if (vtx[2] > 5850.0 || vtx[2] < 4500.0 ) return false;
   if (fabs(vtx[0]) > 850.00) return false;
   double slope = 1.0/sqrt(3.0);
   
@@ -61,12 +61,19 @@ bool PassesTgt5FVCuts(CVUniverse& univ){
   return false;
 }
 
-bool PassesCleanCCAntiNuCuts(CVUniverse& univ){
-  return 
+bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC){
+  int MINOSMatch=0;
+  if (isPC){
+    //    MINOSMatch=univ.GetIsMinosMatchTrackOLD();
+    MINOSMatch=1;
+  }
+  else{
+    MINOSMatch=univ.GetIsMinosMatchTrack();
+  }
+  return
     (univ.GetNDeadDiscriminatorsUpstreamMuon() < 2) &&
     (univ.GetNuHelicity() == 2) &&
-    //    (univ.GetIsMinosMatchTrackOLD() == 1) &&
-    (univ.GetIsMinosMatchTrack() == 1) &&
+    (MINOSMatch == 1) &&
     (TMath::RadToDeg()*univ.GetThetamu() < 20.0) &&
     (univ.GetPmu() < 20000.0 && univ.GetPmu() > 1500.0);
 }
@@ -82,10 +89,28 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
     (univ.GetNImprovedMichel() > 0);
 }
 
-bool PassesCuts(CVUniverse& univ){
+bool PassesTejinBlobCuts(CVUniverse& universe){
+  int leadingBlobID=universe.GetCurrentNeutCands().GetIDMaxE();
+  //cout << "leading Blob ID " << leadingBlobID << endl;
+  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentNeutCands().GetCandidate(leadingBlobID);
+  TVector3 leadingPos=leadingBlob.GetBegPos();
+  TVector3 leadingFP=leadingBlob.GetFlightPath();
+  TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
+  if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
+  else{
+    return
+      (fabs(leadingPos.X()+999.0) > 0.5) &&
+      (fabs(leadingPos.Y()+999.0) > 0.5) &&
+      (fabs(leadingPos.Z()+999.0) > 0.5) &&
+      (leadingFP.Angle(muonMom) > 0.261799388);
+  }
+}
+
+bool PassesCuts(CVUniverse& univ, int isPC){
+  //cout << "HELLO" << endl;
   return
-    PassesTgt5FVCuts(univ) &&
-    PassesCleanCCAntiNuCuts(univ) &&
+    PassesFVCuts(univ) &&
+    PassesCleanCCAntiNuCuts(univ, isPC) &&
     PassesTejinCCQECuts(univ);
 }
 
@@ -96,20 +121,37 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc != 2) {
-    cout << "You don't understand this do you... You need a single input file!!!!!!!!!!!" << endl;
+  if (argc != 3) {
+    cout << "You don't understand this do you... You need a single input file and !!!!!!!!!!!" << endl;
     return 1;
   }
+
+  int isPC=atoi(argv[2]);
   
+  unordered_map<int,int> PDGbins;
+  PDGbins[2112] = 2;
+  PDGbins[2212] = 3;
+  PDGbins[111] = 4;
+  PDGbins[211] = 5;
+  PDGbins[-211] = 6;
+  PDGbins[22] = 7;
+  PDGbins[11] = 8;
+  PDGbins[-11] = 8;
+  PDGbins[-13] = 9;
+  PDGbins[13] = 9;
+
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
   map< string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
-  
-  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_nBlobs_from_CandObj("hw_nBlobs_fromCandObj","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-  
+
+  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
+  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs_from_CandObj("hw_nBlobs_fromCandObj","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
+
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob Cut)",10,0,10,error_bands);
+
   int nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
@@ -119,9 +161,44 @@ int main(int argc, char* argv[]) {
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
-	if (PassesCuts(*universe)){
-	  hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
-	  hw_nBlobs_from_CandObj.univHist(universe)->Fill(universe->GetNNeutCands());
+	if (PassesCuts(*universe, isPC)){
+	  //cout << "Passes CCQE" << endl;
+	  if (PassesTejinBlobCuts(*universe)){
+	    //cout << "Passes Tejin" << endl;
+	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	    for (auto& cand: cands.GetCandidates()){
+	      //cout << "GOOD" << endl;	      
+	      int PID = cand.second.GetMCPID();
+	      int TopPID = cand.second.GetTopMCPID();
+	      int PTrackID = cand.second.GetMCParentTrackID();
+	      if (PTrackID==0 && !isPC){
+		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+	      }
+	      else{
+		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+	      }
+	    }
+	  }
+	  else{
+	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	    for (auto& cand: cands.GetCandidates()){
+	      //cout << "GOOD" << endl;	      
+	      int PID = cand.second.GetMCPID();
+	      int TopPID = cand.second.GetTopMCPID();
+	      int PTrackID = cand.second.GetMCParentTrackID();
+	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
+	      if (PTrackID==0 && !isPC){
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+	      }
+	      else{
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+	      }
+	    }
+	  }
+	  //hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
+	  //hw_nBlobs_from_CandObj.univHist(universe)->Fill(universe->GetNNeutCands());
 	}
       }
     }
@@ -134,10 +211,32 @@ int main(int argc, char* argv[]) {
     vector<CVUniverse*> error_band_universes = band.second;
     for (auto universe : error_band_universes){
       ++i;
-      hw_nBlobs.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_REFERENCE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_neutMC.pdf");
-      hw_nBlobs_from_CandObj.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TEST_MAT_Plots/h_nBlobs_from_CandObj_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_neutMCtest.pdf");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_Tejin.univHist(universe)->Draw();
+      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_MC_6D_half.pdf");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_CCQE.univHist(universe)->Draw();
+      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_MC_6D_half.pdf");
     }
   }
 

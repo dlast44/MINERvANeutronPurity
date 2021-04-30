@@ -27,6 +27,9 @@ namespace NeutronCandidates{
     
     int fID;
     int fIs3D;
+    int fMCPID;
+    int fTopMCPID;
+    int fMCParentTrackID;
     double fTotE;
     double fAngleToFP;
     TVector3 fEvtVtx;
@@ -44,13 +47,21 @@ namespace NeutronCandidates{
 
     int GetID(){ return fID; };
     int GetIs3D(){ return fIs3D; };
+    int GetMCPID(){ return fMCPID; };
+    int GetTopMCPID(){ return fTopMCPID; };
+    int GetMCParentTrackID(){ return fMCParentTrackID; };
     double GetTotalE(){ return fTotE; };
     double GetAngleToFP(){ return fAngleToFP; };
+    TVector3 GetBegPos(){ return fBegPos; };
     TVector3 GetFlightPath(){ return fFlightPath; };
     TVector3 GetDirection(){ return fDirection; };
+    TVector3 GetEvtVtx(){ return fEvtVtx; };
 
     void SetID(std::vector<int> ID){ fID=ID.at(0); };
     void SetIs3D(std::vector<int> is3D){ fIs3D=is3D.at(0); };
+    void SetMCPID(std::vector<int> MCPID){ fMCPID=MCPID.at(0); };
+    void SetTopMCPID(std::vector<int> TopPID){ fTopMCPID=TopPID.at(0); };
+    void SetMCParentTrackID(std::vector<int> ParentID){ fTopMCPID=ParentID.at(0); };
     void SetTotalE(std::vector<double> TotE){ fTotE=TotE.at(0); };
     void SetEvtVtx(TVector3 EvtVtx){ fEvtVtx=EvtVtx; };
     //Move MULTI-LINE DEFINITIONS TO CPP...???
@@ -103,6 +114,7 @@ namespace NeutronCandidates{
       fNCands=inCands.size();
     }
 
+    int GetIDMaxE(){ return fIDmaxE; };
     int GetNCands(){ return fNCands; };
     NeutCand GetCandidate(int ID){ return fCands[ID]; };
     std::map<int, NeutCand> GetCandidates(){ return fCands; };
