@@ -66,6 +66,7 @@ namespace NeutronCandidates{
       candsMap[cands.at(i_cand).GetID()]=cands.at(i_cand);
       if (cands.at(i_cand).GetTotalE() > maxE){
 	fIDmaxE = cands.at(i_cand).GetID();
+	fCandMaxE = cands.at(i_cand);
 	maxE=cands.at(i_cand).GetTotalE();
       }
       this->SetCands(candsMap);
@@ -80,6 +81,7 @@ namespace NeutronCandidates{
     fCands = {};
     fNCands = fCands.size();
     fIDmaxE = -1;
+    fCandMaxE = NeutCand();
   }
 
 }

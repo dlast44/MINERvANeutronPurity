@@ -96,6 +96,7 @@ namespace NeutronCandidates{
   private:
     int fNCands;
     int fIDmaxE;
+    NeutCand fCandMaxE;
     std::map<int, NeutCand> fCands;
 
     void init();
@@ -108,7 +109,7 @@ namespace NeutronCandidates{
 
     //DTOR
     virtual ~NeutCands() = default;
-
+    
     void SetCands(std::map<int, NeutCand> inCands){ 
       fCands=inCands; 
       fNCands=inCands.size();
@@ -116,7 +117,10 @@ namespace NeutronCandidates{
 
     int GetIDMaxE(){ return fIDmaxE; };
     int GetNCands(){ return fNCands; };
-    NeutCand GetCandidate(int ID){ return fCands[ID]; };
+    NeutCand GetCandidate(int ID){ 
+      if (fNCands == 0) return NeutCand();
+      else return fCands[ID]; };
+    NeutCand GetMaxCandidate(){ return fCandMaxE; };
     std::map<int, NeutCand> GetCandidates(){ return fCands; };
   };
 }
