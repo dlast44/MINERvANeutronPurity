@@ -80,7 +80,8 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC){
 }
 
 //Should Code the more general anti-nu CCQE cuts at some point... but this is a focus for Tejin stuff...
-bool PassesTejinRecoilCut(CVUniverse& univ){
+bool PassesTejinRecoilCut(CVUniverse& univ, int isPC){
+  if (isPC) return true;
   double Q2GeV = univ.GetQ2QEPickledGeV();
   double recoilEGeV = univ.GetRecoilEnergyGeV();
   if (Q2GeV < 0.0 || recoilEGeV < 0.0) return false;
@@ -225,7 +226,7 @@ int main(int argc, char* argv[]) {
 	if (PassesCuts(*universe, isPC)){
 	  
 	  //Passes Tejin Recoil and Blob
-	  if (PassesTejinRecoilCut(*universe)){
+	  if (PassesTejinRecoilCut(*universe, isPC)){
 	    
 	    //Passes Tejin Recoil and Blob
 	    if (PassesTejinBlobCuts(*universe)){
