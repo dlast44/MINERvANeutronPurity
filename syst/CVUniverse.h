@@ -6,6 +6,7 @@
 #ifndef CVUNIVERSE_H
 #define CVUNIVERSE_H
 
+#include "PlotUtils/PhysicsVariables.h"
 #include "PlotUtils/MinervaUniverse.h"
 #include "obj/NeutCands.h"
 #include "TVector3.h"
@@ -22,6 +23,7 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   #include "PlotUtils/SystCalcs/WeightFunctions.h"
   #include "PlotUtils/SystCalcs/MuonFunctions.h"
   #include "PlotUtils/SystCalcs/TruthFunctions.h"
+  #include "PlotUtils/SystCalcs/RecoilEnergyFunctions.h"
 
   //Useful naming grab based on the inherent object in the class iself that should work *crosses fingers*
   //virtual std::string GetAnaToolName() const { return (std::string)m_chw->GetName(); }
@@ -63,6 +65,37 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   virtual int GetIsMinosMatchStub() const { return GetInt("isMinosMatchStub"); };
   virtual int GetIsMinosMatchStubOLD() const { return GetInt("muon_is_minos_match_stub"); };
   virtual int GetNuHelicity() const { return GetInt("MasterAnaDev_nuHelicity"); };
+
+  double MeVGeV=0.001;
+
+  virtual double GetCalRecoilEnergy() const{
+    if (GetVec<double>("recoil_summed_energy").size()==0) return -999.0;
+    return (GetVec<double>("recoil_summed_energy")[0]-GetDouble("recoil_energy_nonmuon_nonvtx100mm"));
+  };
+
+  virtual double GetNonCalRecoilEnergy() const{
+    return 0.0;
+  }
+  
+  virtual double GetEnuCCQEPickledGeV() const{ //RETURNS IN MeV^2
+    int charge=-1; //hard-coded since I'm focused on anti-nu
+    double enu=PlotUtils::nuEnergyCCQE( GetEmu(), GetPmu(), GetThetamu(), charge)*MeVGeV;
+    return enu;
+  };
+
+  virtual double GetQ2QEPickledGeV() const{ //RETURNS IN MeV^2
+    int charge=-1; //hard-coded since I'm focused on anti-nu
+    if (GetEnuCCQEPickledGeV()<=0.0) return 0.0;
+    else{
+      double q2=PlotUtils::qSquaredCCQE( GetEmu(), GetPmu(), GetThetamu(), charge)*MeVGeV*MeVGeV;
+      return q2;
+    }
+  }
+
+  virtual double GetRecoilEnergyGeV() const{
+    double recoilE = GetRecoilEnergy()*MeVGeV;
+    return recoilE;
+  }
 
   //Neutron Candidate Business
 

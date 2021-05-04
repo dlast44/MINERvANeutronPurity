@@ -79,6 +79,16 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC){
     (univ.GetPmu() < 20000.0 && univ.GetPmu() > 1500.0);
 }
 
+//Should Code the more general anti-nu CCQE cuts at some point... but this is a focus for Tejin stuff...
+bool PassesTejinRecoilCut(CVUniverse& univ){
+  double Q2GeV = univ.GetQ2QEPickledGeV();
+  double recoilEGeV = univ.GetRecoilEnergyGeV();
+  if (Q2GeV < 0.0 || recoilEGeV < 0.0) return false;
+  else if (Q2GeV < 0.3) return (recoilEGeV < (0.04+0.43*Q2GeV));
+  else if (Q2GeV < 1.4) return (recoilEGeV < (0.08+0.3*Q2GeV));
+  else return (recoilEGeV < 0.5);
+}
+
 bool PassesTejinCCQECuts(CVUniverse& univ){
   //bool PassesRecoilECut = false;
   //recoil energy cut and Q2 calculation are unclear to me. Need investigate...
@@ -90,15 +100,19 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
     (univ.GetNImprovedMichel() > 0);
 }
 
-bool PassesTejinBlobCuts(CVUniverse& universe){
-  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
+bool PassesTejinBlobCuts(CVUniverse& univ){
+  NeutronCandidates::NeutCand leadingBlob=univ.GetCurrentLeadingNeutCand();
   int leading3D=leadingBlob.GetIs3D();
+  double leadingEGeV = 0.001*leadingBlob.GetTotalE();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
-  TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
+  TVector3 muonMom(univ.GetMuon4V().Z(),univ.GetMuon4V().Y(),univ.GetMuon4V().Z());
+  double Q2GeV = univ.GetQ2QEPickledGeV();
+  double MnGeV = 0.939566; //Should check what others might use, but this will be close enough for now...
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
   else{
     return
       (leading3D==1) &&
+      //(leadingEGeV < Q2GeV/(2*MnGeV)) && Commented out for time being to test recoil cuts mostly...
       (leadingFP.Angle(muonMom) > 0.261799388);
   }
 }
@@ -193,11 +207,9 @@ int main(int argc, char* argv[]) {
   map< string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
 
-  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs_from_CandObj("hw_nBlobs_fromCandObj","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob Cut)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob & Recoil Cut)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Recoil("hw_primary_parent_Recoil","Primary Particle Matched To Blob (Tejin Selection w/ Recoil w/o Blob Cut)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob or Recoil Cut)",10,0,10,error_bands);
 
   if(!nEntries) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
@@ -208,30 +220,55 @@ int main(int argc, char* argv[]) {
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
+	
+	//Passes CCQE Cuts that matche Tejin's selection
 	if (PassesCuts(*universe, isPC)){
-	  //else{ This was here before... Checking that this has nothing to do with the changed behavior...
-	  //There's weird buggy behavior...
-
-	  //cout << "Passes CCQE" << endl;
-	  if (PassesTejinBlobCuts(*universe)){
-	    //cout << "Passes Tejin" << endl;
-	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	    for (auto& cand: cands.GetCandidates()){
-	      //cout << "GOOD" << endl;	      
-	      int PID = cand.second.GetMCPID();
-	      int TopPID = cand.second.GetTopMCPID();
-	      int PTrackID = cand.second.GetMCParentTrackID();
-	      if (PTrackID==0 && !isPC){
-		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+	  
+	  //Passes Tejin Recoil and Blob
+	  if (PassesTejinRecoilCut(*universe)){
+	    
+	    //Passes Tejin Recoil and Blob
+	    if (PassesTejinBlobCuts(*universe)){
+	      NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	      for (auto& cand: cands.GetCandidates()){
+		int PID = cand.second.GetMCPID();
+		int TopPID = cand.second.GetTopMCPID();
+		int PTrackID = cand.second.GetMCParentTrackID();
+		if (PTrackID==0 && !isPC){
+		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		}
+		else{
+		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		}
 	      }
-	      else{
-		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+	    }
+	  
+	    //Passes Tejin Recoil Not Blob
+	    else {
+	      NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	      for (auto& cand: cands.GetCandidates()){
+		//cout << "GOOD" << endl;	      
+		int PID = cand.second.GetMCPID();
+		int TopPID = cand.second.GetTopMCPID();
+		int PTrackID = cand.second.GetMCParentTrackID();
+		//if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
+		if (PTrackID==0 && !isPC){
+		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		}
+		else{
+		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		}
 	      }
 	    }
 	  }
-	  
+
+	  //Fails Tejin Recoil. I'm not going to treat the Tejin Blob Cut as special.
 	  else {
 	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
 	    for (auto& cand: cands.GetCandidates()){
@@ -273,6 +310,20 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
       hw_primary_parent_Tejin.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_Recoil.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
