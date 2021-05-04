@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
+//Usage: TestLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -110,15 +110,14 @@ bool PassesTejinBlobCuts(CVUniverse& universe){
 
 bool PassesTejinBlobCutsTEST(CVUniverse& universe){
   NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
+  int leading3D=leadingBlob.GetIs3D();
   TVector3 leadingPos=leadingBlob.GetBegPos();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
   else{
     return
-      (fabs(leadingPos.X()+999.0) > 0.5) &&
-      (fabs(leadingPos.Y()+999.0) > 0.5) &&
-      (fabs(leadingPos.Z()+999.0) > 0.5) &&
+      (leading3D==1) &&
       (leadingFP.Angle(muonMom) > 0.261799388);
   }
 }
@@ -173,87 +172,29 @@ int main(int argc, char* argv[]) {
   int nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
+    //cout << "" << endl;
     //if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
     for (auto band : error_bands){
       vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
-	cout << "N Cands Before General Cuts A: " << universe->GetNNeutCands() << endl;
-	cout << "N Cands Before General Cuts B: " << universe->GetCurrentNeutCands().GetNCands() << endl;
-	cout << "N Cands Before General Cuts C: " << universe->GetCurrentNeutCands().GetCandidates().size() << endl;
+	if (!PassesTejinBlobCutsTEST(*universe) && PassesTejinBlobCuts(*universe)){
+	  /*
+	  int leadingBlobID=universe.GetCurrentNeutCands().GetIDMaxE();
+	  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentNeutCands().GetCandidate(leadingBlobID);
+	  TVector3 leadingPos=leadingBlob.GetBegPos();
+	  TVector3 leadingFP=leadingBlob.GetFlightPath();
+	  */
 
-	if (PassesCuts(*universe, isPC)){
-	  //else{ This was here before... Checking that this has nothing to do with the changed behavior...
-	  //There's weird buggy behavior...
-	  NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	  for (auto& cand: cands.GetCandidates()){
-	    //cout << "GOOD" << endl;	      
-	    int PID = cand.second.GetMCPID();
-	    int TopPID = cand.second.GetTopMCPID();
-	    int PTrackID = cand.second.GetMCParentTrackID();
-	    //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
-	    if (PTrackID==0 && !isPC){
-	      hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-	    }
-	    else{
-	      hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-	    }
-	  }
+	  NeutronCandidates::NeutCand leadingBlobTEST=universe->GetCurrentLeadingNeutCand();
+	  TVector3 leadingPosTEST=leadingBlobTEST.GetBegPos();
+	  TVector3 leadingFPTEST=leadingBlobTEST.GetFlightPath();
 
-	cout << "N Cands Passed General Cuts, Before default blob, A: " << universe->GetNNeutCands() << endl;
-	cout << "N Cands Passed General Cuts, Before default blob, B: " << universe->GetCurrentNeutCands().GetNCands() << endl;
-	cout << "N Cands Passed General Cuts, Before default blob, C: " << universe->GetCurrentNeutCands().GetCandidates().size() << endl;
+	  cout << "Check that leading blob is indeed not 3D: " << leadingBlobTEST.GetIs3D() << endl;
+	  cout << "Leading Blob Position for events which pass TEST, but not default: " << leadingPosTEST.X() << " " << leadingPosTEST.Y() << " " << leadingPosTEST.Z() << endl;
+	  cout << "Leading Blob Flight Path for events which pass TEST, but not default: " << leadingFPTEST.X() << " " << leadingFPTEST.Y() << " " << leadingFPTEST.Z() << endl;
 
-	  //cout << "Passes CCQE" << endl;
-	  if (PassesTejinBlobCuts(*universe)){
-	    //cout << "Passes Tejin" << endl;
-	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	    for (auto& cand: cands.GetCandidates()){
-	      //cout << "GOOD" << endl;	      
-	      int PID = cand.second.GetMCPID();
-	      int TopPID = cand.second.GetTopMCPID();
-	      int PTrackID = cand.second.GetMCParentTrackID();
-	      if (PTrackID==0 && !isPC){
-		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-	      }
-	      else{
-		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-	      }
-	    }
-	  }
-
-	cout << "N Cands Passed General Cuts, After default blob, A: " << universe->GetNNeutCands() << endl;
-	cout << "N Cands Passed General Cuts, After default blob, B: " << universe->GetCurrentNeutCands().GetNCands() << endl;
-	cout << "N Cands Passed General Cuts, After default blob, C: " << universe->GetCurrentNeutCands().GetCandidates().size() << endl;
-
-	  if (PassesTejinBlobCutsTEST(*universe)){
-	    //cout << "Passes Tejin" << endl;
-	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	    for (auto& cand: cands.GetCandidates()){
-	      //cout << "GOOD" << endl;	      
-	      int PID = cand.second.GetMCPID();
-	      int TopPID = cand.second.GetTopMCPID();
-	      int PTrackID = cand.second.GetMCParentTrackID();
-	      if (PTrackID==0 && !isPC){
-		hw_primary_parent_Tejin_TEST.univHist(universe)->Fill(PDGbins[PID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-	      }
-	      else{
-		hw_primary_parent_Tejin_TEST.univHist(universe)->Fill(PDGbins[TopPID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-	      }
-	    }
-	  }
-
-	cout << "N Cands Passed General Cuts, After All blob, A: " << universe->GetNNeutCands() << endl;
-	cout << "N Cands Passed General Cuts, After All blob, B: " << universe->GetCurrentNeutCands().GetNCands() << endl;
-	cout << "N Cands Passed General Cuts, After All blob, C: " << universe->GetCurrentNeutCands().GetCandidates().size() << endl;
-
-	  //hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
-	  //hw_nBlobs_from_CandObj.univHist(universe)->Fill(universe->GetNNeutCands());
 	}
       }
     }

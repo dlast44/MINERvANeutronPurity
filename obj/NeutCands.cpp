@@ -8,7 +8,7 @@
 namespace NeutronCandidates{
 
   intBranchMap GetBranchIntMap(){
-    return {{"SetID",{"MasterAnaDev_BlobID"}},{"3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
+    return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
   }
 
   doubleBranchMap GetBranchDoubleMap(){

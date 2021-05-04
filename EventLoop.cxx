@@ -90,35 +90,14 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
 }
 
 bool PassesTejinBlobCuts(CVUniverse& universe){
-  int leadingBlobID=universe.GetCurrentNeutCands().GetIDMaxE();
-  //cout << "leading Blob ID " << leadingBlobID << endl;
-  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentNeutCands().GetCandidate(leadingBlobID);
-
-  //NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
-  TVector3 leadingPos=leadingBlob.GetBegPos();
-  TVector3 leadingFP=leadingBlob.GetFlightPath();
-  TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
-  if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
-  else{
-    return
-      (fabs(leadingPos.X()+999.0) > 0.5) &&
-      (fabs(leadingPos.Y()+999.0) > 0.5) &&
-      (fabs(leadingPos.Z()+999.0) > 0.5) &&
-      (leadingFP.Angle(muonMom) > 0.261799388);
-  }
-}
-
-bool PassesTejinBlobCutsTEST(CVUniverse& universe){
   NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
-  TVector3 leadingPos=leadingBlob.GetBegPos();
+  int leading3D=leadingBlob.GetIs3D();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
   else{
     return
-      (fabs(leadingPos.X()+999.0) > 0.5) &&
-      (fabs(leadingPos.Y()+999.0) > 0.5) &&
-      (fabs(leadingPos.Z()+999.0) > 0.5) &&
+      (leading3D==1) &&
       (leadingFP.Angle(muonMom) > 0.261799388);
   }
 }
@@ -168,7 +147,6 @@ int main(int argc, char* argv[]) {
 
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin_TEST("hw_primary_parent_Tejin_TEST","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
 
   int nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
@@ -194,51 +172,31 @@ int main(int argc, char* argv[]) {
 	      int PTrackID = cand.second.GetMCParentTrackID();
 	      if (PTrackID==0 && !isPC){
 		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 	      }
 	      else{
 		hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
 	      }
 	    }
 	  }
-
-	  if (PassesTejinBlobCutsTEST(*universe)){
-	    //cout << "Passes Tejin" << endl;
+	  
+	  else {
 	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
 	    for (auto& cand: cands.GetCandidates()){
 	      //cout << "GOOD" << endl;	      
 	      int PID = cand.second.GetMCPID();
 	      int TopPID = cand.second.GetTopMCPID();
 	      int PTrackID = cand.second.GetMCParentTrackID();
+	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 	      if (PTrackID==0 && !isPC){
-		hw_primary_parent_Tejin_TEST.univHist(universe)->Fill(PDGbins[PID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 	      }
 	      else{
-		hw_primary_parent_Tejin_TEST.univHist(universe)->Fill(PDGbins[TopPID]);
-		//hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
 	      }
 	    }
 	  }
-
-	  NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	  for (auto& cand: cands.GetCandidates()){
-	    //cout << "GOOD" << endl;	      
-	    int PID = cand.second.GetMCPID();
-	    int TopPID = cand.second.GetTopMCPID();
-	    int PTrackID = cand.second.GetMCParentTrackID();
-	    //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
-	    if (PTrackID==0 && !isPC){
-	      hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-	    }
-	    else{
-	      hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-	    }
-	  }
-
-	  //hw_nBlobs.univHist(universe)->Fill(universe->GetNNeutBlobs());
-	  //hw_nBlobs_from_CandObj.univHist(universe)->Fill(universe->GetNNeutCands());
 	}
       }
     }
@@ -263,20 +221,8 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
       hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
       hw_primary_parent_Tejin.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_NEW_BOTH_BLOB_CUTS.pdf");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_primary_parent_Tejin_TEST.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_Tejin_TEST_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_NEW_BOTH_BLOB_CUTS.pdf");
+      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_Everything.pdf");
+
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
@@ -289,7 +235,7 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
       hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
       hw_primary_parent_CCQE.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_NEW_BOTH_BLOB_CUTS.pdf");
+      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_Everything.pdf");
     }
   }
 
