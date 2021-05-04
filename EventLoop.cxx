@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <output_directory> <tag_for_naming_files> optional: <n_event>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <bitset>
 #include <time.h>
+#include <sys/stat.h>
 
 //ROOT includes
 #include "TInterpreter.h"
@@ -110,6 +111,11 @@ bool PassesCuts(CVUniverse& univ, int isPC){
     PassesTejinCCQECuts(univ);
 }
 
+bool PathExists(string path){
+  struct stat buffer;
+  return (stat (path.c_str(), &buffer) == 0);
+}
+
 int main(int argc, char* argv[]) {
 
   #ifndef NCINTEX
@@ -117,13 +123,58 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc != 3) {
-    cout << "You don't understand this do you... You need a single input file and !!!!!!!!!!!" << endl;
+  if (argc < 5 || argc > 6) {
+    cout << "Check usage..." << endl;
     return 1;
   }
 
+  string playlist=string(argv[1]);
   int isPC=atoi(argv[2]);
-  
+  string outDir=string(argv[3]);
+  string tag=string(argv[4]);
+  int nEntries=0;
+
+  if (argc == 6){
+    nEntries=atoi(argv[5]);
+  }
+
+  if (PathExists(outDir)){
+    cout << "Thank you for choosing a path for output files that exists." << endl;
+  }
+  else{
+    cout << "Output directory doesn't exist. Exiting" << endl;
+    return 2;
+  }
+
+  string txtExt = ".txt";
+  string rootExt = ".root";
+  string slash = "/";
+  string token;
+  string playlistStub = playlist;
+  size_t pos=0;
+
+  //cout << playlistStub << endl;
+  while ((pos = playlistStub.find(slash)) != string::npos){
+    //cout << playlistStub << endl;
+    token = playlistStub.substr(0, pos);
+    //cout << token << endl;
+    playlistStub.erase(0, pos+slash.length());
+  }
+  //cout << playlistStub << endl;
+  if ((pos=playlistStub.find(txtExt)) != string::npos){
+    token = playlistStub.substr(0,pos);
+  }
+  else if ((pos=playlistStub.find(rootExt)) != string::npos){
+    token = playlistStub.substr(0,pos);
+  }
+  else{
+    cout << "input must either be .root, or .txt" << endl;
+    return 3;
+  }
+
+  playlistStub=token;
+  cout << "Input file name parsed to: " << playlistStub << endl;
+
   unordered_map<int,int> PDGbins;
   PDGbins[2112] = 2;
   PDGbins[2212] = 3;
@@ -136,7 +187,7 @@ int main(int argc, char* argv[]) {
   PDGbins[-13] = 9;
   PDGbins[13] = 9;
 
-  PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(string(argv[1]),"MasterAnaDev");
+  PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(playlist,"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
   map< string, vector<CVUniverse*>> error_bands;
@@ -148,7 +199,7 @@ int main(int argc, char* argv[]) {
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob Cut)",10,0,10,error_bands);
 
-  int nEntries = chain->GetEntries();
+  if(!nEntries) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
     if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
@@ -221,7 +272,7 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
       hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
       hw_primary_parent_Tejin.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_Everything.pdf");
+      c1->Print((TString)(outDir)+"h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
@@ -235,7 +286,7 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
       hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
       hw_primary_parent_CCQE.univHist(universe)->Draw();
-      c1->Print("/minerva/app/users/dlast/TargetNeutronsAna/PresPlots/Exclusives_Meeting_04_29_2021/h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_PC_neutron_test_Everything.pdf");
+      c1->Print((TString)(outDir)+"h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
     }
   }
 

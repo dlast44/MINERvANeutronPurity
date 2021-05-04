@@ -64,3 +64,4 @@ target_link_libraries(TestLoop ${ROOT_LIBRARIES} PlotUtils obj)
 
 #install
 install(TARGETS EventLoop DESTINATION bin)
+install(TARGETS TestLoop DESTINATION bin)
