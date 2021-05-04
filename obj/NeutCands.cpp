@@ -27,6 +27,7 @@ namespace NeutronCandidates{
       else if (function.first=="SetIs3D") this->SetIs3D(function.second);
       else if (function.first=="SetMCPID") this->SetMCPID(function.second);
       else if (function.first=="SetTopMCPID") this->SetTopMCPID(function.second);
+      else if (function.first=="SetMCParentTrackID") this->SetMCParentTrackID(function.second);
       else continue;
     }
     for(const auto& function:candDoubleData){

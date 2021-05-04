@@ -61,7 +61,7 @@ namespace NeutronCandidates{
     void SetIs3D(std::vector<int> is3D){ fIs3D=is3D.at(0); };
     void SetMCPID(std::vector<int> MCPID){ fMCPID=MCPID.at(0); };
     void SetTopMCPID(std::vector<int> TopPID){ fTopMCPID=TopPID.at(0); };
-    void SetMCParentTrackID(std::vector<int> ParentID){ fTopMCPID=ParentID.at(0); };
+    void SetMCParentTrackID(std::vector<int> ParentID){ fMCParentTrackID=ParentID.at(0); };
     void SetTotalE(std::vector<double> TotE){ fTotE=TotE.at(0); };
     void SetEvtVtx(TVector3 EvtVtx){ fEvtVtx=EvtVtx; };
     //Move MULTI-LINE DEFINITIONS TO CPP...???

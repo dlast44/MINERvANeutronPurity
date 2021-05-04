@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: TestLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -90,28 +90,8 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
 }
 
 bool PassesTejinBlobCuts(CVUniverse& universe){
-  int leadingBlobID=universe.GetCurrentNeutCands().GetIDMaxE();
-  //cout << "leading Blob ID " << leadingBlobID << endl;
-  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentNeutCands().GetCandidate(leadingBlobID);
-
-  //NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
-  TVector3 leadingPos=leadingBlob.GetBegPos();
-  TVector3 leadingFP=leadingBlob.GetFlightPath();
-  TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
-  if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
-  else{
-    return
-      (fabs(leadingPos.X()+999.0) > 0.5) &&
-      (fabs(leadingPos.Y()+999.0) > 0.5) &&
-      (fabs(leadingPos.Z()+999.0) > 0.5) &&
-      (leadingFP.Angle(muonMom) > 0.261799388);
-  }
-}
-
-bool PassesTejinBlobCutsTEST(CVUniverse& universe){
   NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentLeadingNeutCand();
   int leading3D=leadingBlob.GetIs3D();
-  TVector3 leadingPos=leadingBlob.GetBegPos();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(universe.GetMuon4V().Z(),universe.GetMuon4V().Y(),universe.GetMuon4V().Z());
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
@@ -159,42 +139,29 @@ int main(int argc, char* argv[]) {
   PlotUtils::ChainWrapper* chain = makeChainWrapperPtr(string(argv[1]),"MasterAnaDev");
   
   CVUniverse* CV = new CVUniverse(chain);
-  map< string, vector<CVUniverse*>> error_bands;
+  map<string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
-
-  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs("hw_nBlobs","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-  //PlotUtils::HistWrapper<CVUniverse> hw_nBlobs_from_CandObj("hw_nBlobs_fromCandObj","Number of Neutron Blobs for this selection MAD 6D \"Full\" (04-28-2021 10:11 AM)",100,0.0,100.0,error_bands);
-
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin_TEST("hw_primary_parent_Tejin_TEST","Primary Particle Matched To Blob (Tejin Selection w/ Blob Cut)",10,0,10,error_bands);
 
   int nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
-    //cout << "" << endl;
-    //if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
+    if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
     for (auto band : error_bands){
       vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
-	if (!PassesTejinBlobCutsTEST(*universe) && PassesTejinBlobCuts(*universe)){
-	  /*
-	  int leadingBlobID=universe.GetCurrentNeutCands().GetIDMaxE();
-	  NeutronCandidates::NeutCand leadingBlob=universe.GetCurrentNeutCands().GetCandidate(leadingBlobID);
-	  TVector3 leadingPos=leadingBlob.GetBegPos();
-	  TVector3 leadingFP=leadingBlob.GetFlightPath();
-	  */
-
-	  NeutronCandidates::NeutCand leadingBlobTEST=universe->GetCurrentLeadingNeutCand();
-	  TVector3 leadingPosTEST=leadingBlobTEST.GetBegPos();
-	  TVector3 leadingFPTEST=leadingBlobTEST.GetFlightPath();
-
-	  cout << "Check that leading blob is indeed not 3D: " << leadingBlobTEST.GetIs3D() << endl;
-	  cout << "Leading Blob Position for events which pass TEST, but not default: " << leadingPosTEST.X() << " " << leadingPosTEST.Y() << " " << leadingPosTEST.Z() << endl;
-	  cout << "Leading Blob Flight Path for events which pass TEST, but not default: " << leadingFPTEST.X() << " " << leadingFPTEST.Y() << " " << leadingFPTEST.Z() << endl;
-
+	if (PassesCuts(*universe, isPC)){
+	  NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	  for (auto& cand: cands.GetCandidates()){
+	    int PTrackID = cand.second.GetMCParentTrackID();
+	    int PID = cand.second.GetMCPID();
+	    int TopPID = cand.second.GetTopMCPID();
+	    if (PTrackID != 0 && !isPC){
+	      if (PDGbins[TopPID] == 0) cout << "Other PDG: " << TopPID << endl;
+	    }
+	    else if (PDGbins[PID] == 0) cout << "Other PDG: " << PID << endl;
+	  }
 	}
       }
     }
