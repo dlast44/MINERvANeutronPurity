@@ -101,20 +101,22 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
     (univ.GetNImprovedMichel() > 0);
 }
 
-bool PassesTejinBlobCuts(CVUniverse& univ){
+int PassesTejinBlobCuts(CVUniverse& univ){
   NeutronCandidates::NeutCand leadingBlob=univ.GetCurrentLeadingNeutCand();
   int leading3D=leadingBlob.GetIs3D();
   double leadingEGeV = 0.001*leadingBlob.GetTotalE();
+  TVector3 leadingPos=leadingBlob.GetBegPos();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(univ.GetMuon4V().Z(),univ.GetMuon4V().Y(),univ.GetMuon4V().Z());
   double Q2GeV = univ.GetQ2QEPickledGeV();
   double MnGeV = 0.939566; //Should check what others might use, but this will be close enough for now...
-  if (leadingFP.Mag()==0 || muonMom.Mag()==0) return false;
+  if (leadingFP.Mag()==0 || muonMom.Mag()==0) return 0;
   else{
-    return
-      (leading3D==1) &&
-      //(leadingEGeV < Q2GeV/(2*MnGeV)) && Commented out for time being to test recoil cuts mostly...
-      (leadingFP.Angle(muonMom) > 0.261799388);
+    if((leading3D==1) && (leadingFP.Angle(muonMom) > 0.261799388)){
+      if (leadingPos.Z() >= 5980.0) return 2;
+      else return 1;
+    }
+    return 0;
   }
 }
 
@@ -208,6 +210,7 @@ int main(int argc, char* argv[]) {
   map< string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
 
+  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin_TrackerONLY("hw_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (Tejin Selection w/ Blob & Recoil Cut)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob & Recoil Cut)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Recoil("hw_primary_parent_Recoil","Primary Particle Matched To Blob (Tejin Selection w/ Recoil w/o Blob Cut)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob or Recoil Cut)",10,0,10,error_bands);
@@ -228,19 +231,28 @@ int main(int argc, char* argv[]) {
 	  //Passes Tejin Recoil and Blob
 	  if (PassesTejinRecoilCut(*universe, isPC)){
 	    
+	    int TejinBlobValue = PassesTejinBlobCuts(*universe);
 	    //Passes Tejin Recoil and Blob
-	    if (PassesTejinBlobCuts(*universe)){
+	    if (TejinBlobValue){
 	      NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
 	      for (auto& cand: cands.GetCandidates()){
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
 		if (PTrackID==0 && !isPC){
+		  //Additional Requirement of the Chosen Blob being in the tracker only.
+		  if (TejinBlobValue==2){
+		    hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		  }
 		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
 		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
 		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 		}
 		else{
+		  //Additional Requirement of the Chosen Blob being in the tracker only.
+		  if (TejinBlobValue==2){
+		    hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);		  
+		  }
 		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
 		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
 		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
@@ -269,7 +281,7 @@ int main(int argc, char* argv[]) {
 	    }
 	  }
 
-	  //Fails Tejin Recoil. I'm not going to treat the Tejin Blob Cut as special.
+	  //Fails Tejin Recoil. I'm not going to treat the Tejin Blob Cut as special/independent of this recoil cut.
 	  else {
 	    NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
 	    for (auto& cand: cands.GetCandidates()){
@@ -291,13 +303,14 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  TCanvas* c1 = new TCanvas("c1","c1",800,800);
+  TCanvas* c1 = new TCanvas("c1","c1",1200,800);
   c1->cd();
   for (auto band : error_bands){
     int i=0;
     vector<CVUniverse*> error_band_universes = band.second;
     for (auto universe : error_band_universes){
       ++i;
+
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
@@ -307,10 +320,34 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
       hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
       hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
       hw_primary_parent_Tejin.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
@@ -321,8 +358,13 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
       hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
       hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
       hw_primary_parent_Recoil.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
@@ -335,8 +377,13 @@ int main(int argc, char* argv[]) {
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
       hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
       hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
       hw_primary_parent_CCQE.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
     }
