@@ -152,15 +152,22 @@ int main(int argc, char* argv[]) {
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
 	if (PassesCuts(*universe, isPC)){
-	  NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
-	  for (auto& cand: cands.GetCandidates()){
-	    int PTrackID = cand.second.GetMCParentTrackID();
-	    int PID = cand.second.GetMCPID();
-	    int TopPID = cand.second.GetTopMCPID();
-	    if (PTrackID != 0 && !isPC){
-	      if (PDGbins[TopPID] == 0) cout << "Other PDG: " << TopPID << endl;
-	    }
-	    else if (PDGbins[PID] == 0) cout << "Other PDG: " << PID << endl;
+	  NeutronCandidates::NeutCand leadingBlob=universe->GetCurrentLeadingNeutCand();
+	  int is3D = leadingBlob.GetIs3D();
+	  double ang = leadingBlob.GetAngleToFP();
+	  TVector3 FP = leadingBlob.GetFlightPath();
+	  TVector3 dir = leadingBlob.GetDirection();
+	  TVector3 pos = leadingBlob.GetBegPos();
+	  TVector3 end = leadingBlob.GetEndPos();
+	  TVector3 vtx = leadingBlob.GetEvtVtx();
+	  if (is3D==1){
+	    cout << "" << endl;
+	    cout << "Beg Position: " << pos.X() << " " << pos.Y() << " " << pos.Z() << endl;
+	    cout << "End Position: " << end.X() << " " << end.Y() << " " << end.Z() << endl;
+	    cout << "Blob Direction: " << dir.X() << " " << dir.Y() << " " << dir.Z() << endl;
+	    cout << "Vtx: " << vtx.X() << " " << vtx.Y() << " " << vtx.Z() << endl;
+	    cout << "Flight Path: " << FP.X() << " " << FP.Y() << " " << FP.Z() << endl;
+	    cout << "Angle: " << ang << endl;
 	  }
 	}
       }

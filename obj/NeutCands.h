@@ -53,6 +53,7 @@ namespace NeutronCandidates{
     double GetTotalE(){ return fTotE; };
     double GetAngleToFP(){ return fAngleToFP; };
     TVector3 GetBegPos(){ return fBegPos; };
+    TVector3 GetEndPos(){ return fEndPos; };
     TVector3 GetFlightPath(){ return fFlightPath; };
     TVector3 GetDirection(){ return fDirection; };
     TVector3 GetEvtVtx(){ return fEvtVtx; };
@@ -67,7 +68,7 @@ namespace NeutronCandidates{
     //Move MULTI-LINE DEFINITIONS TO CPP...???
     void SetBegPos(std::vector<double> BegPos){
       fBegPos.SetXYZ(BegPos.at(0),BegPos.at(1),BegPos.at(2));
-      fDirection = fBegPos-fEndPos;
+      fDirection = fEndPos-fBegPos;
       fFlightPath = fBegPos-fEvtVtx;
       if (fFlightPath.Mag() > 0 && fDirection.Mag() > 0){
 	fAngleToFP = fFlightPath.Angle(fDirection);
@@ -78,7 +79,7 @@ namespace NeutronCandidates{
     };
     void SetEndPos(std::vector<double> EndPos){
       fEndPos.SetXYZ(EndPos.at(0),EndPos.at(1),EndPos.at(2));
-      fDirection = fBegPos-fEndPos;
+      fDirection = fEndPos-fBegPos;
       fAngleToFP = fFlightPath.Angle(fDirection);
       if (fFlightPath.Mag() > 0 && fDirection.Mag() > 0){
 	fAngleToFP = fFlightPath.Angle(fDirection);
