@@ -51,10 +51,12 @@
 
 using namespace std;
 
+double targetBoundary = 5850.0;
+
 bool PassesFVCuts(CVUniverse& univ){
   vector<double> vtx = univ.GetVtx();
   double side = 850.0*2.0/sqrt(3.0);
-  if (vtx[2] > 5850.0 || vtx[2] < 4500.0 ) return false;
+  if (vtx[2] > targetBoundary || vtx[2] < 4500.0 ) return false;
   if (fabs(vtx[0]) > 850.00) return false;
   double slope = 1.0/sqrt(3.0);
   
@@ -105,6 +107,7 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   NeutronCandidates::NeutCand leadingBlob=univ.GetCurrentLeadingNeutCand();
   int leading3D=leadingBlob.GetIs3D();
   double leadingEGeV = 0.001*leadingBlob.GetTotalE();
+  double leadingAngle=leadingBlob.GetAngleToFP();
   TVector3 leadingPos=leadingBlob.GetBegPos();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(univ.GetMuon4V().Z(),univ.GetMuon4V().Y(),univ.GetMuon4V().Z());
@@ -113,8 +116,12 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return 0;
   else{
     if((leading3D==1) && (leadingFP.Angle(muonMom) > 0.261799388)){
-      if (leadingPos.Z() >= 5980.0) return 2;
-      else return 1;
+      if (leadingPos.Z() >= targetBoundary){
+	if (leadingAngle > 0.2 && leadingAngle < 0.7) return 4;
+	return 2;
+      }
+      if (leadingAngle > 0.2 && leadingAngle < 0.7) return 3;
+      return 1;
     }
     return 0;
   }
@@ -210,15 +217,26 @@ int main(int argc, char* argv[]) {
   map< string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
 
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin_TrackerONLY("hw_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (Tejin Selection w/ Blob & Recoil Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Tejin("hw_primary_parent_Tejin","Primary Particle Matched To Blob (Tejin Selection w/ Blob & Recoil Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_Recoil("hw_primary_parent_Recoil","Primary Particle Matched To Blob (Tejin Selection w/ Recoil w/o Blob Cut)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_primary_parent_CCQE("hw_primary_parent_CCQE","Primary Particle Matched To Blob (Tejin Selection w/o Blob or Recoil Cut)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin_TrackerONLY("hw_tracker_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin("hw_tracker_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Recoil("hw_tracker_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_CCQE("hw_tracker_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+
+  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin_TrackerONLY("hw_target_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin("hw_target_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Recoil("hw_target_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_CCQE("hw_target_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+
+  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin("hw_ALL_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin_TrackerONLY("hw_ALL_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_CCQE("hw_ALL_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Recoil("hw_ALL_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
 
   if(!nEntries) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
     if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
+    //if (i%(10000)==0) cout << i << " entries finished." << endl;
     for (auto band : error_bands){
       vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
@@ -239,23 +257,56 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		double candZ = cand.second.GetBegPos().Z();
 		if (PTrackID==0 && !isPC){
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
-		  if (TejinBlobValue==2){
-		    hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		  if (TejinBlobValue==2 || TejinBlobValue==4){
+		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		    if (candZ > targetBoundary){
+		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		    }
+		    else {
+		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		    }
 		  }
-		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  if (candZ > targetBoundary){
+		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  }
+		  else{
+		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  }
 		}
 		else{
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
 		  if (TejinBlobValue==2){
-		    hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);		  
+		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		    if (candZ > targetBoundary){
+		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		    }		  
+		    else {
+		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		    }
 		  }
-		  hw_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  if (candZ > targetBoundary){
+		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  }
+		  else{
+		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  }
 		}
 	      }
 	    }
@@ -268,14 +319,31 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		double candZ = cand.second.GetBegPos().Z();
 		//if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 		if (PTrackID==0 && !isPC){
-		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  if (candZ > targetBoundary){
+		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  }
+		  else{
+		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
+		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  }
 		}
 		else{
-		  hw_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  if (candZ > targetBoundary){
+		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  }
+		  else{
+		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
+		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  }
 		}
 	      }
 	    }
@@ -289,12 +357,17 @@ int main(int argc, char* argv[]) {
 	      int PID = cand.second.GetMCPID();
 	      int TopPID = cand.second.GetTopMCPID();
 	      int PTrackID = cand.second.GetMCParentTrackID();
+	      double candZ = cand.second.GetBegPos().Z();
 	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 	      if (PTrackID==0 && !isPC){
-		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		if (candZ > targetBoundary) hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		else hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 	      }
 	      else{
-		hw_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		if (candZ > targetBoundary) hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		else hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
 	      }
 	    }
 	  }
@@ -311,81 +384,326 @@ int main(int argc, char* argv[]) {
     for (auto universe : error_band_universes){
       ++i;
 
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Tejin.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_tracker_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_tracker_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_Recoil.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_tracker_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_primary_parent_CCQE.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_tracker_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Tejin.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_target_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_target_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_Recoil.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_target_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_target_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_target_primary_parent_CCQE.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_target_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Tejin.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_ALL_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_ALL_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_Recoil.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_ALL_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
+
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Blobs");
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
+      hw_ALL_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
+      hw_ALL_primary_parent_CCQE.univHist(universe)->Draw();
+      c1->Print((TString)(outDir)+"h_ALL_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      //Drawing target vs. tracker on same plot instead of stacked.
+
+      hw_target_primary_parent_CCQE.univHist(universe)->SetLineColor(kBlue);
+      //hw_target_primary_parent_CCQE.univHist(universe)->Sumw2(kFALSE);
+      hw_target_primary_parent_CCQE.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_CCQE.univHist(universe)->Integral())));
+      hw_target_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_target_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->SetLineColor(kRed);
+      //hw_tracker_primary_parent_CCQE.univHist(universe)->Sumw2(kFALSE);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_CCQE.univHist(universe)->Integral())));
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_tracker_primary_parent_CCQE.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+
+      hw_target_primary_parent_Recoil.univHist(universe)->SetLineColor(kBlue);
+      //hw_target_primary_parent_Recoil.univHist(universe)->Sumw2(kFALSE);
+      hw_target_primary_parent_Recoil.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_Recoil.univHist(universe)->Integral())));
+      hw_target_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_target_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->SetLineColor(kRed);
+      //hw_tracker_primary_parent_Recoil.univHist(universe)->Sumw2(kFALSE);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_Recoil.univHist(universe)->Integral())));
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_tracker_primary_parent_Recoil.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+
+      hw_target_primary_parent_Tejin.univHist(universe)->SetLineColor(kBlue);
+      //hw_target_primary_parent_Tejin.univHist(universe)->Sumw2(kFALSE);
+      hw_target_primary_parent_Tejin.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_Tejin.univHist(universe)->Integral())));
+      hw_target_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_target_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->SetLineColor(kRed);
+      //hw_tracker_primary_parent_Tejin.univHist(universe)->Sumw2(kFALSE);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_Tejin.univHist(universe)->Integral())));
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_tracker_primary_parent_Tejin.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->SetLineColor(kBlue);
+      //hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Sumw2(kFALSE);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Integral())));
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->SetLineColor(kRed);
+      //hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Sumw2(kFALSE);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Integral())));
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
+
+      TLegend* legend = new TLegend(0.7,0.7,0.9,0.9);
+      legend->SetHeader("Blob Location");
+      legend->AddEntry(hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe),"Tracker Region","L");
+      legend->AddEntry(hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe),"Target Region","L");
+
+      hw_tracker_primary_parent_CCQE.univHist(universe)->SetStats(kFALSE);
+      hw_target_primary_parent_CCQE.univHist(universe)->SetStats(kFALSE);
+      hw_tracker_primary_parent_CCQE.univHist(universe)->Draw();
+      hw_target_primary_parent_CCQE.univHist(universe)->Draw("same");
+      legend->Draw();
+      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_CCQE_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_tracker_primary_parent_Recoil.univHist(universe)->SetStats(kFALSE);
+      hw_target_primary_parent_Recoil.univHist(universe)->SetStats(kFALSE);
+      hw_tracker_primary_parent_Recoil.univHist(universe)->Draw();
+      hw_target_primary_parent_Recoil.univHist(universe)->Draw("same");
+      legend->Draw();
+      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_Recoil_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_tracker_primary_parent_Tejin.univHist(universe)->SetStats(kFALSE);
+      hw_target_primary_parent_Tejin.univHist(universe)->SetStats(kFALSE);
+      hw_tracker_primary_parent_Tejin.univHist(universe)->Draw();
+      hw_target_primary_parent_Tejin.univHist(universe)->Draw("same");
+      legend->Draw();
+      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_Tejin_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->SetStats(kFALSE);
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->SetStats(kFALSE);
+      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
+      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw("same");
+      legend->Draw();
+      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
+
     }
   }
 
