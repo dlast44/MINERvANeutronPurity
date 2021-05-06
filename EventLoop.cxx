@@ -107,7 +107,6 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   NeutronCandidates::NeutCand leadingBlob=univ.GetCurrentLeadingNeutCand();
   int leading3D=leadingBlob.GetIs3D();
   double leadingEGeV = 0.001*leadingBlob.GetTotalE();
-  double leadingAngle=leadingBlob.GetAngleToFP();
   TVector3 leadingPos=leadingBlob.GetBegPos();
   TVector3 leadingFP=leadingBlob.GetFlightPath();
   TVector3 muonMom(univ.GetMuon4V().Z(),univ.GetMuon4V().Y(),univ.GetMuon4V().Z());
@@ -116,11 +115,7 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   if (leadingFP.Mag()==0 || muonMom.Mag()==0) return 0;
   else{
     if((leading3D==1) && (leadingFP.Angle(muonMom) > 0.261799388)){
-      if (leadingPos.Z() >= targetBoundary){
-	if (leadingAngle > 0.2 && leadingAngle < 0.7) return 4;
-	return 2;
-      }
-      if (leadingAngle > 0.2 && leadingAngle < 0.7) return 3;
+      if (leadingPos.Z() >= targetBoundary) return 2;
       return 1;
     }
     return 0;
@@ -219,22 +214,16 @@ int main(int argc, char* argv[]) {
 
   PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin_TrackerONLY("hw_tracker_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin("hw_tracker_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_David_TrackerONLY("hw_tracker_primary_parent_David_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_David("hw_tracker_primary_parent_David","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Recoil("hw_tracker_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_CCQE("hw_tracker_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
 
   PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin_TrackerONLY("hw_target_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin("hw_target_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_David_TrackerONLY("hw_target_primary_parent_David_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_David("hw_target_primary_parent_David","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Recoil("hw_target_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_CCQE("hw_target_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
 
   PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin("hw_ALL_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_David("hw_ALL_primary_parent_David","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin_TrackerONLY("hw_ALL_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_David_TrackerONLY("hw_ALL_primary_parent_David_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_CCQE("hw_ALL_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
   PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Recoil("hw_ALL_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
 
@@ -275,33 +264,15 @@ int main(int argc, char* argv[]) {
 		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
 		    }
 		  }
-		  else if(TejinBlobValue==4){
-		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_ALL_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]);
-		    if (candZ > targetBoundary){
-		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		      hw_tracker_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]);
-		    }
-		    else {
-		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
-		      hw_target_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]);
-		    }
-		  }
-		  if (TejinBlobValue == 3) hw_ALL_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]);
 		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
 		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
 		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 		  if (candZ > targetBoundary){
-		    if (TejinBlobValue == 3) hw_tracker_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]);
 		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
 		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
 		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
 		  }
 		  else{
-		    if (TejinBlobValue == 3) hw_target_primary_parent_David.univHist(universe)->Fill(PDGbins[PID]); 
 		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
 		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
 		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
@@ -318,33 +289,15 @@ int main(int argc, char* argv[]) {
 		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
 		    }
 		  }
-		  else if (TejinBlobValue==4){
-		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_ALL_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
-		    if (candZ > targetBoundary){
-		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		      hw_tracker_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
-		    }		  
-		    else {
-		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
-		      hw_target_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
-		    }
-		  }
-		  if (TejinBlobValue==3) hw_ALL_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
 		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
 		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
 		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
 		  if (candZ > targetBoundary){
-		    if (TejinBlobValue==3) hw_tracker_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
 		  }
 		  else{
-		    if(TejinBlobValue==3) hw_target_primary_parent_David.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
 		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
@@ -466,46 +419,6 @@ int main(int argc, char* argv[]) {
       hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_tracker_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_tracker_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_tracker_primary_parent_David.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_tracker_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_tracker_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_tracker_primary_parent_David.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_tracker_primary_parent_David_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_tracker_primary_parent_David_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
       hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
       hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
       hw_tracker_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
@@ -587,46 +500,6 @@ int main(int argc, char* argv[]) {
       hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_target_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_target_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_target_primary_parent_David.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_target_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_target_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_target_primary_parent_David.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_target_primary_parent_David_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_target_primary_parent_David_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
       hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
       hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
       hw_target_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
@@ -706,46 +579,6 @@ int main(int argc, char* argv[]) {
       hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
       hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw();
       c1->Print((TString)(outDir)+"h_ALL_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_ALL_primary_parent_David.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_ALL_primary_parent_David.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_ALL_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_ALL_primary_parent_David.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_ALL_primary_parent_David.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_ALL_primary_parent_David_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
-
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(3,"n");           
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(4,"p");           
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(5,"#pi^{0}");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(6,"#pi^{+}");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(7,"#pi^{-}");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(8,"#gamma");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(9,"e");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetBinLabel(10,"#mu");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetLabelSize(0.06);
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitle("Blob Primary Parent");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleSize(0.045);
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetXaxis()->SetTitleOffset(1.075);
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Blobs");
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleSize(0.045);
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitleOffset(1.075);
-      hw_ALL_primary_parent_David_TrackerONLY.univHist(universe)->Draw();
-      c1->Print((TString)(outDir)+"h_ALL_primary_parent_David_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+(TString)(to_string(nEntries))+"_Events.pdf");
 
       hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(1,"Other");
       hw_ALL_primary_parent_Recoil.univHist(universe)->GetXaxis()->SetBinLabel(2,"");
@@ -833,28 +666,6 @@ int main(int argc, char* argv[]) {
       hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
       hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
 
-      hw_target_primary_parent_David.univHist(universe)->SetLineColor(kBlue);
-      //hw_target_primary_parent_David.univHist(universe)->Sumw2(kFALSE);
-      hw_target_primary_parent_David.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_David.univHist(universe)->Integral())));
-      hw_target_primary_parent_David.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
-      hw_target_primary_parent_David.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
-      hw_tracker_primary_parent_David.univHist(universe)->SetLineColor(kRed);
-      //hw_tracker_primary_parent_David.univHist(universe)->Sumw2(kFALSE);
-      hw_tracker_primary_parent_David.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_David.univHist(universe)->Integral())));
-      hw_tracker_primary_parent_David.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
-      hw_tracker_primary_parent_David.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
-
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->SetLineColor(kBlue);
-      //hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Sumw2(kFALSE);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Scale(1.0/(((double)hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Integral())));
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->SetLineColor(kRed);
-      //hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Sumw2(kFALSE);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Scale(1.0/(((double)hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Integral())));
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetTitle("Fraction of Blobs");
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->GetYaxis()->SetRangeUser(0.0,0.5);
-
       TLegend* legend = new TLegend(0.7,0.7,0.9,0.9);
       legend->SetHeader("Blob Location");
       legend->AddEntry(hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe),"Tracker Region","L");
@@ -887,21 +698,6 @@ int main(int argc, char* argv[]) {
       hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Draw("same");
       legend->Draw();
       c1->Print((TString)(outDir)+"h_both_regions_primary_parent_Tejin_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
-
-      hw_tracker_primary_parent_David.univHist(universe)->SetStats(kFALSE);
-      hw_target_primary_parent_David.univHist(universe)->SetStats(kFALSE);
-      hw_tracker_primary_parent_David.univHist(universe)->Draw();
-      hw_target_primary_parent_David.univHist(universe)->Draw("same");
-      legend->Draw();
-      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_David_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
-
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->SetStats(kFALSE);
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->SetStats(kFALSE);
-      hw_tracker_primary_parent_David_TrackerONLY.univHist(universe)->Draw();
-      hw_target_primary_parent_David_TrackerONLY.univHist(universe)->Draw("same");
-      legend->Draw();
-      c1->Print((TString)(outDir)+"h_both_regions_primary_parent_David_TrackerONLY_"+(TString)(universe->ShortName())+(TString)(to_string(i))+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.pdf");
-
     }
   }
 
