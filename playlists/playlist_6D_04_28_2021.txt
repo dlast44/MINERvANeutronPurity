@@ -1,8 +1,8 @@
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126565_126578_04_26_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126579_126589_04_26_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126590_126599_04_26_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126600_126609_04_26_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126610_126629_04_27_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126630_126649_04_27_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126650_126669_04_27_2021.root
-/pnfs/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126670_126680_04_27_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126565_126578_04_26_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126579_126589_04_26_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126590_126599_04_26_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126600_126609_04_26_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126610_126629_04_27_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126630_126649_04_27_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126650_126669_04_27_2021.root
+root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/minerva/persistent/users/dlast/merged_MAD_MC/6D/MAD_6D_Runs_126670_126680_04_27_2021.root

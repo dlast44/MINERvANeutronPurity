@@ -104,10 +104,11 @@ bool PassesTejinBlobCuts(CVUniverse& universe){
 
 bool PassesCuts(CVUniverse& univ, int isPC){
   //cout << "HELLO" << endl;
+  return true;
   return
     PassesFVCuts(univ) &&
-    PassesCleanCCAntiNuCuts(univ, isPC) &&
-    PassesTejinCCQECuts(univ);
+    PassesCleanCCAntiNuCuts(univ, isPC);
+    //PassesTejinCCQECuts(univ);
 }
 
 int main(int argc, char* argv[]) {
@@ -142,18 +143,23 @@ int main(int argc, char* argv[]) {
   map<string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
 
-  int nEntries = chain->GetEntries();
+  //int nEntries = chain->GetEntries();
+  int nEntries = 10000;
   cout << "Processing " << nEntries << " events." << endl;
   for (int i=0; i<nEntries;++i){
-    if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
+    //if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
     for (auto band : error_bands){
       vector<CVUniverse*> error_band_universes = band.second;
       for (auto universe : error_band_universes){
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
 	if (PassesCuts(*universe, isPC)){
+	  cout << "Entry: " << i << endl;
 	  NeutronCandidates::NeutCand leadingBlob=universe->GetCurrentLeadingNeutCand();
 	  int is3D = leadingBlob.GetIs3D();
+	  int PID=leadingBlob.GetMCPID();
+	  int TopPID=leadingBlob.GetTopMCPID();
+	  int TrackID=leadingBlob.GetMCParentTrackID();
 	  double ang = leadingBlob.GetAngleToFP();
 	  TVector3 FP = leadingBlob.GetFlightPath();
 	  TVector3 dir = leadingBlob.GetDirection();
@@ -161,13 +167,16 @@ int main(int argc, char* argv[]) {
 	  TVector3 end = leadingBlob.GetEndPos();
 	  TVector3 vtx = leadingBlob.GetEvtVtx();
 	  if (is3D==1){
-	    cout << "" << endl;
-	    cout << "Beg Position: " << pos.X() << " " << pos.Y() << " " << pos.Z() << endl;
-	    cout << "End Position: " << end.X() << " " << end.Y() << " " << end.Z() << endl;
-	    cout << "Blob Direction: " << dir.X() << " " << dir.Y() << " " << dir.Z() << endl;
-	    cout << "Vtx: " << vtx.X() << " " << vtx.Y() << " " << vtx.Z() << endl;
-	    cout << "Flight Path: " << FP.X() << " " << FP.Y() << " " << FP.Z() << endl;
-	    cout << "Angle: " << ang << endl;
+	    if (ang > 0.2 && ang < 0.7){
+	      cout << "" << endl;
+	      if (TrackID==0) cout << "PID: " << PID << endl;
+	      else cout << "PID: " << TopPID << endl;
+	    }
+	    else{
+	      cout << "" << endl;
+	      if (TrackID==0) cout << "Bad: " << PID << endl;
+	      else cout << "Bad: " << TopPID << endl;
+	    }
 	  }
 	}
       }
