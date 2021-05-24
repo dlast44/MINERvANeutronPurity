@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <output_directory> <tag_for_naming_files> optional: <n_event>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -150,19 +150,20 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc < 5 || argc > 6) {
+  if (argc < 6 || argc > 7) {
     cout << "Check usage..." << endl;
     return 1;
   }
 
   string playlist=string(argv[1]);
   int isPC=atoi(argv[2]);
-  string outDir=string(argv[3]);
-  string tag=string(argv[4]);
+  int region=atoi(argv[3]);
+  string outDir=string(argv[4]);
+  string tag=string(argv[5]);
   int nEntries=0;
 
   if (argc == 6){
-    nEntries=atoi(argv[5]);
+    nEntries=atoi(argv[6]);
   }
 
   if (PathExists(outDir)){
