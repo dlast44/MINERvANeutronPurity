@@ -53,10 +53,16 @@ using namespace std;
 
 double targetBoundary = 5850.0;
 
-bool PassesFVCuts(CVUniverse& univ){
+bool PassesFVCuts(CVUniverse& univ, int region){
   vector<double> vtx = univ.GetVtx();
   double side = 850.0*2.0/sqrt(3.0);
-  if (vtx[2] > targetBoundary || vtx[2] < 4500.0 ) return false;
+  if (region == 0){
+    if (vtx[2] < targetBoundary || vtx[2] > 8422.0 ) return false;
+  }
+  else if (region == 1){
+    if (vtx[2] > targetBoundary || vtx[2] < 4500.0 ) return false;
+  }
+  else if (vtx[2] < 4500.0 || vtx[2] > 8422.0) return false;
   if (fabs(vtx[0]) > 850.00) return false;
   double slope = 1.0/sqrt(3.0);
   
@@ -122,10 +128,10 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   }
 }
 
-bool PassesCuts(CVUniverse& univ, int isPC){
+bool PassesCuts(CVUniverse& univ, int isPC, int region){
   //cout << "HELLO" << endl;
   return
-    PassesFVCuts(univ) &&
+    PassesFVCuts(univ, region) &&
     PassesCleanCCAntiNuCuts(univ, isPC) &&
     PassesTejinCCQECuts(univ);
 }
@@ -152,7 +158,7 @@ int main(int argc, char* argv[]) {
   //Pass an input file name to this script now
   if (argc < 6 || argc > 7) {
     cout << "Check usage..." << endl;
-    return 1;
+    return 2;
   }
 
   string playlist=string(argv[1]);
@@ -162,7 +168,7 @@ int main(int argc, char* argv[]) {
   string tag=string(argv[5]);
   int nEntries=0;
 
-  if (argc == 6){
+  if (argc == 7){
     nEntries=atoi(argv[6]);
   }
 
@@ -171,8 +177,13 @@ int main(int argc, char* argv[]) {
   }
   else{
     cout << "Output directory doesn't exist. Exiting" << endl;
-    return 2;
+    return 3;
   }
+
+  if (region < 0 || region > 2){
+    cout << "Check usage for meaning of different regions." << endl;
+    return 4;
+  } 
 
   string txtExt = ".txt";
   string rootExt = ".root";
@@ -202,6 +213,8 @@ int main(int argc, char* argv[]) {
 
   playlistStub=token;
   cout << "Input file name parsed to: " << playlistStub << endl;
+
+  map<int,TString>regionNames={{0,"tracker"},{1,"nuke"},{2,"fullID"},};
 
   unordered_map<int,int> PDGbins;
   PDGbins[2112] = 2;
@@ -250,7 +263,7 @@ int main(int argc, char* argv[]) {
 	universe->UpdateNeutCands();
 	
 	//Passes CCQE Cuts that matche Tejin's selection
-	if (PassesCuts(*universe, isPC)){
+	if (PassesCuts(*universe, isPC, region)){
 	  
 	  //Passes Tejin Recoil and Blob
 	  if (PassesTejinRecoilCut(*universe, isPC)){
@@ -382,7 +395,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  TFile* outFile = new TFile((TString)(outDir)+"runEventLoop_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.root","RECREATE");
+  TFile* outFile = new TFile((TString)(outDir)+"runEventLoop_region_"+regionNames[region]+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.root","RECREATE");
   for (auto band : error_bands){
     int i=0;
     vector<CVUniverse*> error_band_universes = band.second;
