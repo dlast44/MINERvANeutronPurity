@@ -77,7 +77,8 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC){
     MINOSMatch=1;
   }
   else{
-    MINOSMatch=univ.GetIsMinosMatchTrack();
+    MINOSMatch=univ.GetHasInteractionVertex();
+      //MINOSMatch=univ.GetIsMinosMatchTrack();
   }
   return
     (univ.GetNDeadDiscriminatorsUpstreamMuon() < 2) &&
@@ -264,6 +265,8 @@ int main(int argc, char* argv[]) {
 	
 	//Passes CCQE Cuts that matche Tejin's selection
 	if (PassesCuts(*universe, isPC, region)){
+
+	  int nFSPart = universe->GetNFSPart();
 	  
 	  //Passes Tejin Recoil and Blob
 	  if (PassesTejinRecoilCut(*universe, isPC)){
@@ -276,6 +279,10 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		if (PTrackID > nFSPart){
+		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
+		  continue;
+		}
 		double candZ = cand.second.GetBegPos().Z();
 		if (PTrackID==0 && !isPC){
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
@@ -338,6 +345,10 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		if (PTrackID > nFSPart){
+		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
+		  continue;
+		}
 		double candZ = cand.second.GetBegPos().Z();
 		//if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 		if (PTrackID==0 && !isPC){
@@ -376,6 +387,10 @@ int main(int argc, char* argv[]) {
 	      int PID = cand.second.GetMCPID();
 	      int TopPID = cand.second.GetTopMCPID();
 	      int PTrackID = cand.second.GetMCParentTrackID();
+	      if (PTrackID > nFSPart){
+		//Add something like this to learn how often this happened? ++nMultiIntBlobs;
+		continue;
+	      }
 	      double candZ = cand.second.GetBegPos().Z();
 	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 	      if (PTrackID==0 && !isPC){
