@@ -57,6 +57,8 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
 
   virtual int GetHasInteractionVertex() const { return GetInt("has_interaction_vertex"); };
 
+  virtual int GetInteractionType() const { return GetInt("mc_intType"); };
+
   virtual std::vector<double> GetVtx() const { return GetVec<double>("vtx"); };
 
   virtual int GetNFSPart() const { return GetInt("mc_nFSPart"); };

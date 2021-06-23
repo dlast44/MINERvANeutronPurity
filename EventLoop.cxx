@@ -132,6 +132,7 @@ int PassesTejinBlobCuts(CVUniverse& univ){
 bool PassesCuts(CVUniverse& univ, int isPC, int region){
   //cout << "HELLO" << endl;
   return
+    (univ.GetInteractionType()==1) &&
     PassesFVCuts(univ, region) &&
     PassesCleanCCAntiNuCuts(univ, isPC) &&
     PassesTejinCCQECuts(univ);
