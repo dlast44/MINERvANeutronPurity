@@ -279,10 +279,11 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		/*
 		if (PTrackID > nFSPart){
 		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
 		  continue;
-		}
+		  }*/
 		double candZ = cand.second.GetBegPos().Z();
 		if (PTrackID==0 && !isPC){
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
@@ -345,10 +346,11 @@ int main(int argc, char* argv[]) {
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();
 		int PTrackID = cand.second.GetMCParentTrackID();
+		/*
 		if (PTrackID > nFSPart){
 		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
 		  continue;
-		}
+		  }*/
 		double candZ = cand.second.GetBegPos().Z();
 		//if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 		if (PTrackID==0 && !isPC){
@@ -387,10 +389,11 @@ int main(int argc, char* argv[]) {
 	      int PID = cand.second.GetMCPID();
 	      int TopPID = cand.second.GetTopMCPID();
 	      int PTrackID = cand.second.GetMCParentTrackID();
+	      /*
 	      if (PTrackID > nFSPart){
 		//Add something like this to learn how often this happened? ++nMultiIntBlobs;
 		continue;
-	      }
+		}*/
 	      double candZ = cand.second.GetBegPos().Z();
 	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 	      if (PTrackID==0 && !isPC){

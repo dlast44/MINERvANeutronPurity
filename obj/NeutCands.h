@@ -30,6 +30,7 @@ namespace NeutronCandidates{
     int fMCPID;
     int fTopMCPID;
     int fMCParentTrackID;
+    int fMCParentPID;
     double fTotE;
     double fAngleToFP;
     TVector3 fEvtVtx;
@@ -50,6 +51,7 @@ namespace NeutronCandidates{
     int GetMCPID(){ return fMCPID; };
     int GetTopMCPID(){ return fTopMCPID; };
     int GetMCParentTrackID(){ return fMCParentTrackID; };
+    int GetMCParentPID(){ return fMCParentPID; };
     double GetTotalE(){ return fTotE; };
     double GetAngleToFP(){ return fAngleToFP; };
     TVector3 GetBegPos(){ return fBegPos; };
@@ -63,6 +65,7 @@ namespace NeutronCandidates{
     void SetMCPID(std::vector<int> MCPID){ fMCPID=MCPID.at(0); };
     void SetTopMCPID(std::vector<int> TopPID){ fTopMCPID=TopPID.at(0); };
     void SetMCParentTrackID(std::vector<int> ParentID){ fMCParentTrackID=ParentID.at(0); };
+    void SetMCParentPID(std::vector<int> ParentPID){ fMCParentPID=ParentPID.at(0); };
     void SetTotalE(std::vector<double> TotE){ fTotE=TotE.at(0); };
     void SetEvtVtx(TVector3 EvtVtx){ fEvtVtx=EvtVtx; };
     //Move MULTI-LINE DEFINITIONS TO CPP...???

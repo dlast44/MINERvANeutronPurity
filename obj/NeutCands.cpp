@@ -8,7 +8,7 @@
 namespace NeutronCandidates{
 
   intBranchMap GetBranchIntMap(){
-    return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},};
+    return {{"SetID",{"MasterAnaDev_BlobID"}},{"SetIs3D",{"MasterAnaDev_BlobIs3D"}},{"SetMCPID",{"MasterAnaDev_BlobMCPID"}},{"SetTopMCPID",{"MasterAnaDev_BlobTopMCPID"}},{"SetMCParentTrackID",{"MasterAnaDev_BlobMCParentTrackID"}},{"SetMCParentPID",{"MasterAnaDev_BlobMCParentPID"}},};
   }
 
   doubleBranchMap GetBranchDoubleMap(){
@@ -28,6 +28,7 @@ namespace NeutronCandidates{
       else if (function.first=="SetMCPID") this->SetMCPID(function.second);
       else if (function.first=="SetTopMCPID") this->SetTopMCPID(function.second);
       else if (function.first=="SetMCParentTrackID") this->SetMCParentTrackID(function.second);
+      else if (function.first=="SetMCParentPID") this->SetMCParentPID(function.second);
       else continue;
     }
     for(const auto& function:candDoubleData){
@@ -46,6 +47,7 @@ namespace NeutronCandidates{
     fMCPID = -999;
     fTopMCPID = -999;
     fMCParentTrackID = -999;
+    fMCParentPID = -999;
     fTotE = -999.0;
     fAngleToFP = -999.0;
     fEvtVtx=tmp;
