@@ -132,7 +132,6 @@ int PassesTejinBlobCuts(CVUniverse& univ){
 bool PassesCuts(CVUniverse& univ, int isPC, int region){
   //cout << "HELLO" << endl;
   return
-    (univ.GetInteractionType()==1) &&
     PassesFVCuts(univ, region) &&
     PassesCleanCCAntiNuCuts(univ, isPC) &&
     PassesTejinCCQECuts(univ);
@@ -236,22 +235,55 @@ int main(int argc, char* argv[]) {
   map< string, vector<CVUniverse*>> error_bands;
   error_bands[string("CV")].push_back(CV);
 
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin_TrackerONLY("hw_tracker_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Tejin("hw_tracker_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_Recoil("hw_tracker_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_tracker_primary_parent_CCQE("hw_tracker_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+  map<int, TString> typeNames={{1,"QE"},{2,"RES"},{3,"DIS"},{8,"2p2h"},{0,"Other"}};
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_primary_parent_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_primary_parent_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_primary_parent_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_primary_parent_Tejin_TrackerONLY;
 
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin_TrackerONLY("hw_target_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Tejin("hw_target_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_Recoil("hw_target_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_target_primary_parent_CCQE("hw_target_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_primary_parent_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_primary_parent_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_primary_parent_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_primary_parent_Tejin_TrackerONLY;
 
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin("hw_ALL_primary_parent_Tejin","Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Tejin_TrackerONLY("hw_ALL_primary_parent_Tejin_TrackerONLY","Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_CCQE("hw_ALL_primary_parent_CCQE","Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
-  PlotUtils::HistWrapper<CVUniverse> hw_ALL_primary_parent_Recoil("hw_ALL_primary_parent_Recoil","Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_Tejin_TrackerONLY;
 
-  vector<PlotUtils::HistWrapper<CVUniverse>*> histsALL = {&hw_tracker_primary_parent_CCQE, &hw_tracker_primary_parent_Recoil, &hw_tracker_primary_parent_Tejin, &hw_tracker_primary_parent_Tejin_TrackerONLY, &hw_target_primary_parent_CCQE, &hw_target_primary_parent_Recoil, &hw_target_primary_parent_Tejin, &hw_target_primary_parent_Tejin_TrackerONLY, &hw_ALL_primary_parent_CCQE, &hw_ALL_primary_parent_Recoil, &hw_ALL_primary_parent_Tejin, &hw_ALL_primary_parent_Tejin_TrackerONLY};
+  for(auto type: typeNames){
+    map_hw_tracker_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+
+    map_hw_target_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+    map_hw_target_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+    map_hw_target_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+    map_hw_target_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+
+    map_hw_ALL_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+  }
+
+  vector<PlotUtils::HistWrapper<CVUniverse>*> histsALL ={
+    &map_hw_tracker_primary_parent_CCQE[1],&map_hw_tracker_primary_parent_CCQE[2],&map_hw_tracker_primary_parent_CCQE[3],&map_hw_tracker_primary_parent_CCQE[8],&map_hw_tracker_primary_parent_CCQE[0],
+    &map_hw_tracker_primary_parent_Recoil[1],&map_hw_tracker_primary_parent_Recoil[2],&map_hw_tracker_primary_parent_Recoil[3],&map_hw_tracker_primary_parent_Recoil[8],&map_hw_tracker_primary_parent_Recoil[0],
+    &map_hw_tracker_primary_parent_Tejin[1],&map_hw_tracker_primary_parent_Tejin[2],&map_hw_tracker_primary_parent_Tejin[3],&map_hw_tracker_primary_parent_Tejin[8],&map_hw_tracker_primary_parent_Tejin[0],
+    &map_hw_tracker_primary_parent_Tejin_TrackerONLY[1],&map_hw_tracker_primary_parent_Tejin_TrackerONLY[2],&map_hw_tracker_primary_parent_Tejin_TrackerONLY[3],&map_hw_tracker_primary_parent_Tejin_TrackerONLY[8],&map_hw_tracker_primary_parent_Tejin_TrackerONLY[0],
+
+    &map_hw_target_primary_parent_CCQE[1],&map_hw_target_primary_parent_CCQE[2],&map_hw_target_primary_parent_CCQE[3],&map_hw_target_primary_parent_CCQE[8],&map_hw_target_primary_parent_CCQE[0],
+    &map_hw_target_primary_parent_Recoil[1],&map_hw_target_primary_parent_Recoil[2],&map_hw_target_primary_parent_Recoil[3],&map_hw_target_primary_parent_Recoil[8],&map_hw_target_primary_parent_Recoil[0],
+    &map_hw_target_primary_parent_Tejin[1],&map_hw_target_primary_parent_Tejin[2],&map_hw_target_primary_parent_Tejin[3],&map_hw_target_primary_parent_Tejin[8],&map_hw_target_primary_parent_Tejin[0],
+    &map_hw_target_primary_parent_Tejin_TrackerONLY[1],&map_hw_target_primary_parent_Tejin_TrackerONLY[2],&map_hw_target_primary_parent_Tejin_TrackerONLY[3],&map_hw_target_primary_parent_Tejin_TrackerONLY[8],&map_hw_target_primary_parent_Tejin_TrackerONLY[0],
+
+    &map_hw_ALL_primary_parent_CCQE[1],&map_hw_ALL_primary_parent_CCQE[2],&map_hw_ALL_primary_parent_CCQE[3],&map_hw_ALL_primary_parent_CCQE[8],&map_hw_ALL_primary_parent_CCQE[0],
+    &map_hw_ALL_primary_parent_Recoil[1],&map_hw_ALL_primary_parent_Recoil[2],&map_hw_ALL_primary_parent_Recoil[3],&map_hw_ALL_primary_parent_Recoil[8],&map_hw_ALL_primary_parent_Recoil[0],
+    &map_hw_ALL_primary_parent_Tejin[1],&map_hw_ALL_primary_parent_Tejin[2],&map_hw_ALL_primary_parent_Tejin[3],&map_hw_ALL_primary_parent_Tejin[8],&map_hw_ALL_primary_parent_Tejin[0],
+    &map_hw_ALL_primary_parent_Tejin_TrackerONLY[1],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[2],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[3],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[8],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[0]
+  };
 
   if(!nEntries) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
@@ -268,7 +300,17 @@ int main(int argc, char* argv[]) {
 	if (PassesCuts(*universe, isPC, region)){
 
 	  int nFSPart = universe->GetNFSPart();
-	  
+	  int intType = universe->GetInteractionType();
+	  if (intType > 8){
+	    intType=0;
+	  }
+	  else if (intType < 1){
+	    intType=0;
+	  }
+	  else if (intType > 3 && intType < 8){
+	    intType=0;
+	  }
+
 	  //Passes Tejin Recoil and Blob
 	  if (PassesTejinRecoilCut(*universe, isPC)){
 	    
@@ -289,51 +331,51 @@ int main(int argc, char* argv[]) {
 		if (PTrackID==0 && !isPC){
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
 		  if (TejinBlobValue==2){
-		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_ALL_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    if (candZ > targetBoundary){
-		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		      map_hw_tracker_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    }
 		    else {
-		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[PID]);
+		      map_hw_target_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    }
 		  }
-		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  map_hw_ALL_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
+		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  if (candZ > targetBoundary){
-		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_tracker_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  }
 		  else{
-		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_target_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  }
 		}
 		else{
 		  //Additional Requirement of the Chosen Blob being in the tracker only.
 		  if (TejinBlobValue==2){
-		    hw_ALL_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_ALL_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    if (candZ > targetBoundary){
-		      hw_tracker_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		      map_hw_tracker_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    }		  
 		    else {
-		      hw_target_primary_parent_Tejin_TrackerONLY.univHist(universe)->Fill(PDGbins[TopPID]);
+		      map_hw_target_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    }
 		  }
-		  hw_ALL_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  map_hw_ALL_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  if (candZ > targetBoundary){
-		    hw_tracker_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_tracker_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  }
 		  else{
-		    hw_target_primary_parent_Tejin.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_target_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  }
 		}
 	      }
@@ -355,27 +397,27 @@ int main(int argc, char* argv[]) {
 		double candZ = cand.second.GetBegPos().Z();
 		//if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 		if (PTrackID==0 && !isPC){
-		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  if (candZ > targetBoundary){
-		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  }
 		  else{
-		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[PID]);
-		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
+		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  }
 		}
 		else{
-		  hw_ALL_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		  hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  if (candZ > targetBoundary){
-		    hw_tracker_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  }
 		  else{
-		    hw_target_primary_parent_Recoil.univHist(universe)->Fill(PDGbins[TopPID]);
-		    hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  }
 		}
 	      }
@@ -398,14 +440,14 @@ int main(int argc, char* argv[]) {
 	      double candZ = cand.second.GetBegPos().Z();
 	      //if (cand.second.GetIs3D()==1) cout << "BlobIs3D" << endl;
 	      if (PTrackID==0 && !isPC){
-		hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-		if (candZ > targetBoundary) hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
-		else hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[PID]);
+		map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
+		if (candZ > targetBoundary) map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
+		else map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 	      }
 	      else{
-		hw_ALL_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-		if (candZ > targetBoundary) hw_tracker_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
-		else hw_target_primary_parent_CCQE.univHist(universe)->Fill(PDGbins[TopPID]);
+		map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		if (candZ > targetBoundary) map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
+		else map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 	      }
 	    }
 	  }
@@ -415,6 +457,7 @@ int main(int argc, char* argv[]) {
   }
 
   TFile* outFile = new TFile((TString)(outDir)+"runEventLoop_region_"+regionNames[region]+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.root","RECREATE");
+  cout << "Writing" << endl;
   for (auto band : error_bands){
     int i=0;
     vector<CVUniverse*> error_band_universes = band.second;
