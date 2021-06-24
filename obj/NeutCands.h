@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <bitset>
 
 namespace NeutronCandidates{
   typedef std::map<std::string, std::vector<const char*>> intBranchMap;
@@ -59,6 +60,7 @@ namespace NeutronCandidates{
     TVector3 GetFlightPath(){ return fFlightPath; };
     TVector3 GetDirection(){ return fDirection; };
     TVector3 GetEvtVtx(){ return fEvtVtx; };
+    std::bitset<4> GetClassifier();
 
     void SetID(std::vector<int> ID){ fID=ID.at(0); };
     void SetIs3D(std::vector<int> is3D){ fIs3D=is3D.at(0); };

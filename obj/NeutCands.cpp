@@ -57,6 +57,15 @@ namespace NeutronCandidates{
     fFlightPath=tmp;
     tmp.~TVector3();
   }
+
+  std::bitset<4> NeutCand::GetClassifier(){
+    std::bitset<4> cfier{"0000"};
+    if (this->GetIs3D()==1) cfier.flip(0);
+    if (this->GetAngleToFP() > 0.2 && this->GetAngleToFP() < 0.7) cfier.flip(1);
+    if (this->GetTotalE() >= 50.0) cfier.flip(2);
+    if (abs(this->GetFlightPath().Z()) >=100.0) cfier.flip(3);
+    return cfier;
+  }
   
   NeutCands::NeutCands(){
     this->init();
