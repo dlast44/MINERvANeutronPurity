@@ -52,6 +52,7 @@
 using namespace std;
 
 double targetBoundary = 5850.0;
+bitset<4> goodBlob{"1111"};
 
 bool PassesFVCuts(CVUniverse& univ, int region){
   vector<double> vtx = univ.GetVtx();
@@ -251,6 +252,11 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_Tejin;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_primary_parent_Tejin_TrackerONLY;
 
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_leadBlob_passes_classifier_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_leadBlob_passes_classifier_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_leadBlob_passes_classifier_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY;
+
   for(auto type: typeNames){
     map_hw_tracker_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
     map_hw_tracker_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
@@ -266,6 +272,11 @@ int main(int argc, char* argv[]) {
     map_hw_ALL_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
     map_hw_ALL_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
     map_hw_ALL_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+
+    map_hw_leadBlob_passes_classifier_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_CCQE_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE)",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Recoil_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil)",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob)",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob, Tracker Blob)",2,0,2,error_bands);
   }
 
   vector<PlotUtils::HistWrapper<CVUniverse>*> histsALL ={
@@ -282,7 +293,12 @@ int main(int argc, char* argv[]) {
     &map_hw_ALL_primary_parent_CCQE[1],&map_hw_ALL_primary_parent_CCQE[2],&map_hw_ALL_primary_parent_CCQE[3],&map_hw_ALL_primary_parent_CCQE[8],&map_hw_ALL_primary_parent_CCQE[0],
     &map_hw_ALL_primary_parent_Recoil[1],&map_hw_ALL_primary_parent_Recoil[2],&map_hw_ALL_primary_parent_Recoil[3],&map_hw_ALL_primary_parent_Recoil[8],&map_hw_ALL_primary_parent_Recoil[0],
     &map_hw_ALL_primary_parent_Tejin[1],&map_hw_ALL_primary_parent_Tejin[2],&map_hw_ALL_primary_parent_Tejin[3],&map_hw_ALL_primary_parent_Tejin[8],&map_hw_ALL_primary_parent_Tejin[0],
-    &map_hw_ALL_primary_parent_Tejin_TrackerONLY[1],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[2],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[3],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[8],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[0]
+    &map_hw_ALL_primary_parent_Tejin_TrackerONLY[1],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[2],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[3],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[8],&map_hw_ALL_primary_parent_Tejin_TrackerONLY[0],
+
+    &map_hw_leadBlob_passes_classifier_CCQE[1],&map_hw_leadBlob_passes_classifier_CCQE[2],&map_hw_leadBlob_passes_classifier_CCQE[3],&map_hw_leadBlob_passes_classifier_CCQE[8],&map_hw_leadBlob_passes_classifier_CCQE[0],
+    &map_hw_leadBlob_passes_classifier_Recoil[1],&map_hw_leadBlob_passes_classifier_Recoil[2],&map_hw_leadBlob_passes_classifier_Recoil[3],&map_hw_leadBlob_passes_classifier_Recoil[8],&map_hw_leadBlob_passes_classifier_Recoil[0],
+    &map_hw_leadBlob_passes_classifier_Tejin[1],&map_hw_leadBlob_passes_classifier_Tejin[2],&map_hw_leadBlob_passes_classifier_Tejin[3],&map_hw_leadBlob_passes_classifier_Tejin[8],&map_hw_leadBlob_passes_classifier_Tejin[0],
+    &map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[1],&map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[2],&map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[3],&map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[8],&map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[0]
   };
 
   if(!nEntries) nEntries = chain->GetEntries();
@@ -298,9 +314,11 @@ int main(int argc, char* argv[]) {
 	
 	//Passes CCQE Cuts that matche Tejin's selection
 	if (PassesCuts(*universe, isPC, region)){
-
+	  
 	  int nFSPart = universe->GetNFSPart();
 	  int intType = universe->GetInteractionType();
+	  NeutronCandidates::NeutCand leadBlob = universe->GetCurrentLeadingNeutCand();
+	  bool leadBlobPasses = (leadBlob.GetClassifier()==goodBlob);
 	  if (intType > 8){
 	    intType=0;
 	  }
@@ -311,13 +329,27 @@ int main(int argc, char* argv[]) {
 	    intType=0;
 	  }
 
+	  if (leadBlobPasses) map_hw_leadBlob_passes_classifier_CCQE[intType].univHist(universe)->Fill(1);
+	  else map_hw_leadBlob_passes_classifier_CCQE[intType].univHist(universe)->Fill(0);	  
+
 	  //Passes Tejin Recoil and Blob
 	  if (PassesTejinRecoilCut(*universe, isPC)){
+
+	    if (leadBlobPasses) map_hw_leadBlob_passes_classifier_Recoil[intType].univHist(universe)->Fill(1);
+	    else map_hw_leadBlob_passes_classifier_Recoil[intType].univHist(universe)->Fill(0);	  
 	    
 	    int TejinBlobValue = PassesTejinBlobCuts(*universe);
 	    //Passes Tejin Recoil and Blob
 	    if (TejinBlobValue){
-	      NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();
+	      NeutronCandidates::NeutCands cands = universe->GetCurrentNeutCands();	      
+	      if (leadBlobPasses) map_hw_leadBlob_passes_classifier_Tejin[intType].univHist(universe)->Fill(1);
+	      else map_hw_leadBlob_passes_classifier_Tejin[intType].univHist(universe)->Fill(0);
+
+	      if (TejinBlobValue==2){
+		if (leadBlobPasses) map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[intType].univHist(universe)->Fill(1);
+		else map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[intType].univHist(universe)->Fill(0);
+	      }
+
 	      for (auto& cand: cands.GetCandidates()){
 		int PID = cand.second.GetMCPID();
 		int TopPID = cand.second.GetTopMCPID();

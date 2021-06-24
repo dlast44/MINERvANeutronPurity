@@ -254,6 +254,13 @@ int main(int argc, char* argv[]) {
 	  cout << "Angle: " << cand.second.GetAngleToFP() << endl;
 	  cout << "Is3D: " << cand.second.GetIs3D() << endl;
 	  cout << "Classifier: " << cand.second.GetClassifier() << endl;
+	  cout << "Direction Magnitude: " << cand.second.GetDirection().Mag() << endl;
+	  cout << "Beg X: " << cand.second.GetBegPos().X() << endl;
+	  cout << "End X: " << cand.second.GetEndPos().X() << endl;
+	  cout << "Beg Y: " << cand.second.GetBegPos().Y() << endl;
+	  cout << "End Y: " << cand.second.GetEndPos().Y() << endl;
+	  cout << "Beg Z: " << cand.second.GetBegPos().Z() << endl;
+	  cout << "End Z: " << cand.second.GetEndPos().Z() << endl;
 	  cout << "" << endl;
 	}
       }
