@@ -109,7 +109,7 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
     (univ.GetNTracks() == 1) &&
     (EMBlobInfo.at(0) < 2) &&
     (EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2)) &&
-    (univ.GetNImprovedMichel() > 0);//Should this be !=0 ??????????
+    !(univ.GetNImprovedMichel() > 0);//Should this be !=0 ??????????
 }
 
 int PassesTejinBlobCuts(CVUniverse& univ){
