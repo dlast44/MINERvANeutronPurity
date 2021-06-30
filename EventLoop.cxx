@@ -39,6 +39,7 @@
 
 //PlotUtils includes??? Trying anything at this point...
 #include "PlotUtils/HistWrapper.h"
+#include "PlotUtils/Hist2DWrapper.h"
 #include "PlotUtils/ChainWrapper.h"
 #include "PlotUtils/makeChainWrapper.h"
 
@@ -108,7 +109,7 @@ bool PassesTejinCCQECuts(CVUniverse& univ){
     (univ.GetNTracks() == 1) &&
     (EMBlobInfo.at(0) < 2) &&
     (EMBlobInfo.at(1) >= 10.0*EMBlobInfo.at(2)) &&
-    (univ.GetNImprovedMichel() > 0);
+    (univ.GetNImprovedMichel() > 0);//Should this be !=0 ??????????
 }
 
 int PassesTejinBlobCuts(CVUniverse& univ){
@@ -254,6 +255,11 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_avg_dEdx_Tejin;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_avg_dEdx_Tejin_TrackerONLY;
 
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_blobE_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_blobE_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_blobE_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_blobE_Tejin_TrackerONLY;
+
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_dist_CCQE;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_dist_Recoil;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_tracker_dist_Tejin;
@@ -279,6 +285,11 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_avg_dEdx_Tejin;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_avg_dEdx_Tejin_TrackerONLY;
 
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_blobE_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_blobE_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_blobE_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_blobE_Tejin_TrackerONLY;
+
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_dist_CCQE;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_dist_Recoil;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_target_dist_Tejin;
@@ -303,6 +314,11 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_avg_dEdx_Recoil;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_avg_dEdx_Tejin;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_avg_dEdx_Tejin_TrackerONLY;
+
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_blobE_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_blobE_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_blobE_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_blobE_Tejin_TrackerONLY;
 
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_dist_CCQE;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_ALL_dist_Recoil;
@@ -335,6 +351,16 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_nBlobs_Tejin;
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_nBlobs_Tejin_TrackerONLY;
 
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_AvgBlobEnergy_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_AvgBlobEnergy_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_AvgBlobEnergy_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_AvgBlobEnergy_Tejin_TrackerONLY;
+
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_RecoilEnergyGeV_CCQE;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_RecoilEnergyGeV_Recoil;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_RecoilEnergyGeV_Tejin;
+  map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_RecoilEnergyGeV_Tejin_TrackerONLY;
+
   for(auto type: typeNames){
     map_hw_tracker_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
     map_hw_tracker_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
@@ -346,10 +372,15 @@ int main(int argc, char* argv[]) {
     map_hw_tracker_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
     map_hw_tracker_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
 
-    map_hw_tracker_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",50,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",50,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",50,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+
+    map_hw_tracker_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
+    map_hw_tracker_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
+    map_hw_tracker_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
+    map_hw_tracker_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
 
     map_hw_tracker_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
     map_hw_tracker_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
@@ -371,10 +402,15 @@ int main(int argc, char* argv[]) {
     map_hw_target_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
     map_hw_target_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
 
-    map_hw_target_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",50,0,50,error_bands);
-    map_hw_target_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",50,0,50,error_bands);
-    map_hw_target_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",50,0,50,error_bands);
-    map_hw_target_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,50,error_bands);
+    map_hw_target_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+
+    map_hw_target_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
+    map_hw_target_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
+    map_hw_target_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
+    map_hw_target_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
 
     map_hw_target_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
     map_hw_target_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
@@ -396,10 +432,15 @@ int main(int argc, char* argv[]) {
     map_hw_ALL_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
     map_hw_ALL_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
 
-    map_hw_ALL_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",50,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",50,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",50,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+
+    map_hw_ALL_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
+    map_hw_ALL_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
+    map_hw_ALL_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
+    map_hw_ALL_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
 
     map_hw_ALL_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
     map_hw_ALL_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
@@ -430,6 +471,16 @@ int main(int argc, char* argv[]) {
     map_hw_nBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Recoil_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil)",100,0,100,error_bands);
     map_hw_nBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob)",100,0,100,error_bands);
     map_hw_nBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob, Tracker Blob)",100,0,100,error_bands);
+
+    map_hw_AvgBlobEnergy_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_CCQE_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE)",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Recoil_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil)",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob)",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,50,error_bands);
+
+    map_hw_RecoilEnergyGeV_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_CCQE_"+type.second,"True "+type.second+" Recoil Energy (CCQE)",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Recoil_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil)",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob)",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,1.5,error_bands);
   }
 
   vector<PlotUtils::HistWrapper<CVUniverse>*> histsALL ={
@@ -447,6 +498,11 @@ int main(int argc, char* argv[]) {
     &map_hw_tracker_avg_dEdx_Recoil[1],&map_hw_tracker_avg_dEdx_Recoil[2],&map_hw_tracker_avg_dEdx_Recoil[3],&map_hw_tracker_avg_dEdx_Recoil[8],&map_hw_tracker_avg_dEdx_Recoil[0],
     &map_hw_tracker_avg_dEdx_Tejin[1],&map_hw_tracker_avg_dEdx_Tejin[2],&map_hw_tracker_avg_dEdx_Tejin[3],&map_hw_tracker_avg_dEdx_Tejin[8],&map_hw_tracker_avg_dEdx_Tejin[0],
     &map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[1],&map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[2],&map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[3],&map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[8],&map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[0],
+
+    &map_hw_tracker_blobE_CCQE[1],&map_hw_tracker_blobE_CCQE[2],&map_hw_tracker_blobE_CCQE[3],&map_hw_tracker_blobE_CCQE[8],&map_hw_tracker_blobE_CCQE[0],
+    &map_hw_tracker_blobE_Recoil[1],&map_hw_tracker_blobE_Recoil[2],&map_hw_tracker_blobE_Recoil[3],&map_hw_tracker_blobE_Recoil[8],&map_hw_tracker_blobE_Recoil[0],
+    &map_hw_tracker_blobE_Tejin[1],&map_hw_tracker_blobE_Tejin[2],&map_hw_tracker_blobE_Tejin[3],&map_hw_tracker_blobE_Tejin[8],&map_hw_tracker_blobE_Tejin[0],
+    &map_hw_tracker_blobE_Tejin_TrackerONLY[1],&map_hw_tracker_blobE_Tejin_TrackerONLY[2],&map_hw_tracker_blobE_Tejin_TrackerONLY[3],&map_hw_tracker_blobE_Tejin_TrackerONLY[8],&map_hw_tracker_blobE_Tejin_TrackerONLY[0],
 
     &map_hw_tracker_dist_CCQE[1],&map_hw_tracker_dist_CCQE[2],&map_hw_tracker_dist_CCQE[3],&map_hw_tracker_dist_CCQE[8],&map_hw_tracker_dist_CCQE[0],
     &map_hw_tracker_dist_Recoil[1],&map_hw_tracker_dist_Recoil[2],&map_hw_tracker_dist_Recoil[3],&map_hw_tracker_dist_Recoil[8],&map_hw_tracker_dist_Recoil[0],
@@ -473,6 +529,11 @@ int main(int argc, char* argv[]) {
     &map_hw_target_avg_dEdx_Tejin[1],&map_hw_target_avg_dEdx_Tejin[2],&map_hw_target_avg_dEdx_Tejin[3],&map_hw_target_avg_dEdx_Tejin[8],&map_hw_target_avg_dEdx_Tejin[0],
     &map_hw_target_avg_dEdx_Tejin_TrackerONLY[1],&map_hw_target_avg_dEdx_Tejin_TrackerONLY[2],&map_hw_target_avg_dEdx_Tejin_TrackerONLY[3],&map_hw_target_avg_dEdx_Tejin_TrackerONLY[8],&map_hw_target_avg_dEdx_Tejin_TrackerONLY[0],
 
+    &map_hw_target_blobE_CCQE[1],&map_hw_target_blobE_CCQE[2],&map_hw_target_blobE_CCQE[3],&map_hw_target_blobE_CCQE[8],&map_hw_target_blobE_CCQE[0],
+    &map_hw_target_blobE_Recoil[1],&map_hw_target_blobE_Recoil[2],&map_hw_target_blobE_Recoil[3],&map_hw_target_blobE_Recoil[8],&map_hw_target_blobE_Recoil[0],
+    &map_hw_target_blobE_Tejin[1],&map_hw_target_blobE_Tejin[2],&map_hw_target_blobE_Tejin[3],&map_hw_target_blobE_Tejin[8],&map_hw_target_blobE_Tejin[0],
+    &map_hw_target_blobE_Tejin_TrackerONLY[1],&map_hw_target_blobE_Tejin_TrackerONLY[2],&map_hw_target_blobE_Tejin_TrackerONLY[3],&map_hw_target_blobE_Tejin_TrackerONLY[8],&map_hw_target_blobE_Tejin_TrackerONLY[0],
+
     &map_hw_target_dist_CCQE[1],&map_hw_target_dist_CCQE[2],&map_hw_target_dist_CCQE[3],&map_hw_target_dist_CCQE[8],&map_hw_target_dist_CCQE[0],
     &map_hw_target_dist_Recoil[1],&map_hw_target_dist_Recoil[2],&map_hw_target_dist_Recoil[3],&map_hw_target_dist_Recoil[8],&map_hw_target_dist_Recoil[0],
     &map_hw_target_dist_Tejin[1],&map_hw_target_dist_Tejin[2],&map_hw_target_dist_Tejin[3],&map_hw_target_dist_Tejin[8],&map_hw_target_dist_Tejin[0],
@@ -497,6 +558,11 @@ int main(int argc, char* argv[]) {
     &map_hw_ALL_avg_dEdx_Recoil[1],&map_hw_ALL_avg_dEdx_Recoil[2],&map_hw_ALL_avg_dEdx_Recoil[3],&map_hw_ALL_avg_dEdx_Recoil[8],&map_hw_ALL_avg_dEdx_Recoil[0],
     &map_hw_ALL_avg_dEdx_Tejin[1],&map_hw_ALL_avg_dEdx_Tejin[2],&map_hw_ALL_avg_dEdx_Tejin[3],&map_hw_ALL_avg_dEdx_Tejin[8],&map_hw_ALL_avg_dEdx_Tejin[0],
     &map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[1],&map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[2],&map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[3],&map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[8],&map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[0],
+
+    &map_hw_ALL_blobE_CCQE[1],&map_hw_ALL_blobE_CCQE[2],&map_hw_ALL_blobE_CCQE[3],&map_hw_ALL_blobE_CCQE[8],&map_hw_ALL_blobE_CCQE[0],
+    &map_hw_ALL_blobE_Recoil[1],&map_hw_ALL_blobE_Recoil[2],&map_hw_ALL_blobE_Recoil[3],&map_hw_ALL_blobE_Recoil[8],&map_hw_ALL_blobE_Recoil[0],
+    &map_hw_ALL_blobE_Tejin[1],&map_hw_ALL_blobE_Tejin[2],&map_hw_ALL_blobE_Tejin[3],&map_hw_ALL_blobE_Tejin[8],&map_hw_ALL_blobE_Tejin[0],
+    &map_hw_ALL_blobE_Tejin_TrackerONLY[1],&map_hw_ALL_blobE_Tejin_TrackerONLY[2],&map_hw_ALL_blobE_Tejin_TrackerONLY[3],&map_hw_ALL_blobE_Tejin_TrackerONLY[8],&map_hw_ALL_blobE_Tejin_TrackerONLY[0],
 
     &map_hw_ALL_dist_CCQE[1],&map_hw_ALL_dist_CCQE[2],&map_hw_ALL_dist_CCQE[3],&map_hw_ALL_dist_CCQE[8],&map_hw_ALL_dist_CCQE[0],
     &map_hw_ALL_dist_Recoil[1],&map_hw_ALL_dist_Recoil[2],&map_hw_ALL_dist_Recoil[3],&map_hw_ALL_dist_Recoil[8],&map_hw_ALL_dist_Recoil[0],
@@ -526,13 +592,24 @@ int main(int argc, char* argv[]) {
     &map_hw_nBlobs_CCQE[1],&map_hw_nBlobs_CCQE[2],&map_hw_nBlobs_CCQE[3],&map_hw_nBlobs_CCQE[8],&map_hw_nBlobs_CCQE[0],
     &map_hw_nBlobs_Recoil[1],&map_hw_nBlobs_Recoil[2],&map_hw_nBlobs_Recoil[3],&map_hw_nBlobs_Recoil[8],&map_hw_nBlobs_Recoil[0],
     &map_hw_nBlobs_Tejin[1],&map_hw_nBlobs_Tejin[2],&map_hw_nBlobs_Tejin[3],&map_hw_nBlobs_Tejin[8],&map_hw_nBlobs_Tejin[0],
-    &map_hw_nBlobs_Tejin_TrackerONLY[1],&map_hw_nBlobs_Tejin_TrackerONLY[2],&map_hw_nBlobs_Tejin_TrackerONLY[3],&map_hw_nBlobs_Tejin_TrackerONLY[8],&map_hw_nBlobs_Tejin_TrackerONLY[0]
+    &map_hw_nBlobs_Tejin_TrackerONLY[1],&map_hw_nBlobs_Tejin_TrackerONLY[2],&map_hw_nBlobs_Tejin_TrackerONLY[3],&map_hw_nBlobs_Tejin_TrackerONLY[8],&map_hw_nBlobs_Tejin_TrackerONLY[0],
+
+    &map_hw_AvgBlobEnergy_CCQE[1],&map_hw_AvgBlobEnergy_CCQE[2],&map_hw_AvgBlobEnergy_CCQE[3],&map_hw_AvgBlobEnergy_CCQE[8],&map_hw_AvgBlobEnergy_CCQE[0],
+    &map_hw_AvgBlobEnergy_Recoil[1],&map_hw_AvgBlobEnergy_Recoil[2],&map_hw_AvgBlobEnergy_Recoil[3],&map_hw_AvgBlobEnergy_Recoil[8],&map_hw_AvgBlobEnergy_Recoil[0],
+    &map_hw_AvgBlobEnergy_Tejin[1],&map_hw_AvgBlobEnergy_Tejin[2],&map_hw_AvgBlobEnergy_Tejin[3],&map_hw_AvgBlobEnergy_Tejin[8],&map_hw_AvgBlobEnergy_Tejin[0],
+    &map_hw_AvgBlobEnergy_Tejin_TrackerONLY[1],&map_hw_AvgBlobEnergy_Tejin_TrackerONLY[2],&map_hw_AvgBlobEnergy_Tejin_TrackerONLY[3],&map_hw_AvgBlobEnergy_Tejin_TrackerONLY[8],&map_hw_AvgBlobEnergy_Tejin_TrackerONLY[0],
+
+    &map_hw_RecoilEnergyGeV_CCQE[1],&map_hw_RecoilEnergyGeV_CCQE[2],&map_hw_RecoilEnergyGeV_CCQE[3],&map_hw_RecoilEnergyGeV_CCQE[8],&map_hw_RecoilEnergyGeV_CCQE[0],
+    &map_hw_RecoilEnergyGeV_Recoil[1],&map_hw_RecoilEnergyGeV_Recoil[2],&map_hw_RecoilEnergyGeV_Recoil[3],&map_hw_RecoilEnergyGeV_Recoil[8],&map_hw_RecoilEnergyGeV_Recoil[0],
+    &map_hw_RecoilEnergyGeV_Tejin[1],&map_hw_RecoilEnergyGeV_Tejin[2],&map_hw_RecoilEnergyGeV_Tejin[3],&map_hw_RecoilEnergyGeV_Tejin[8],&map_hw_RecoilEnergyGeV_Tejin[0],
+    &map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[1],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[2],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[3],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[8],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[0]
   };
 
   if(!nEntries) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   int n3DBlobs=0;
   int nGoodBlobs=0;
+  double blobESum=0.0;
   for (int i=0; i<nEntries;++i){
     if (i%(nEntries/100)==0) cout << (100*i)/nEntries << "% finished." << endl;
     //if (i%(10000)==0) cout << i << " entries finished." << endl;
@@ -541,6 +618,7 @@ int main(int argc, char* argv[]) {
       for (auto universe : error_band_universes){
 	n3DBlobs=0;
 	nGoodBlobs=0;
+	blobESum=0.0;
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
 	int nBlobs = universe->GetNNeutCands();
@@ -581,10 +659,12 @@ int main(int argc, char* argv[]) {
 		TVector3 FP = cand.second.GetFlightPath();
 		double length = cand.second.GetDirection().Mag();
 		double dEdx = -1.0;
-		if (length > 0.0) dEdx = cand.second.GetTotalE()/length;
+		double blobE = cand.second.GetTotalE();
+		if (length > 0.0) dEdx = blobE/length;
 		double vtxDist = FP.Mag();
 		double vtxZDist = abs(FP.Z());
 
+		blobESum += blobE;
 		/*
 		if (PTrackID > nFSPart){
 		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
@@ -598,6 +678,7 @@ int main(int argc, char* argv[]) {
 		    map_hw_ALL_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_ALL_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_ALL_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		    map_hw_ALL_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_ALL_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -605,6 +686,7 @@ int main(int argc, char* argv[]) {
 		      map_hw_tracker_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		      map_hw_tracker_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		      map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		      map_hw_tracker_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		      map_hw_tracker_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		      map_hw_tracker_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 		    }
@@ -613,6 +695,7 @@ int main(int argc, char* argv[]) {
 		      map_hw_target_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[PID]);
 		      map_hw_target_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		      map_hw_target_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		      map_hw_target_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		      map_hw_target_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		      map_hw_target_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 		    }
@@ -621,16 +704,19 @@ int main(int argc, char* argv[]) {
 		  map_hw_ALL_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_ALL_length_Tejin[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_ALL_length_Recoil[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -638,16 +724,19 @@ int main(int argc, char* argv[]) {
 		    map_hw_tracker_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_tracker_length_Tejin[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_tracker_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -656,16 +745,19 @@ int main(int argc, char* argv[]) {
 		    map_hw_target_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_target_length_Tejin[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_target_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -677,6 +769,7 @@ int main(int argc, char* argv[]) {
 		    map_hw_ALL_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_ALL_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_ALL_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		    map_hw_ALL_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_ALL_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -684,6 +777,7 @@ int main(int argc, char* argv[]) {
 		      map_hw_tracker_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		      map_hw_tracker_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		      map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		      map_hw_tracker_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		      map_hw_tracker_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		      map_hw_tracker_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 		    }		  
@@ -692,6 +786,7 @@ int main(int argc, char* argv[]) {
 		      map_hw_target_primary_parent_Tejin_TrackerONLY[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		      map_hw_target_length_Tejin_TrackerONLY[intType].univHist(universe)->Fill(length);
 		      map_hw_target_avg_dEdx_Tejin_TrackerONLY[intType].univHist(universe)->Fill(dEdx);
+		      map_hw_target_blobE_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobE);
 		      map_hw_target_dist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxDist);
 		      map_hw_target_Zdist_Tejin_TrackerONLY[intType].univHist(universe)->Fill(vtxZDist);
 		    }
@@ -700,16 +795,19 @@ int main(int argc, char* argv[]) {
 		  map_hw_ALL_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_ALL_length_Tejin[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_ALL_length_Recoil[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -717,16 +815,19 @@ int main(int argc, char* argv[]) {
 		    map_hw_tracker_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_tracker_length_Tejin[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_tracker_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -735,16 +836,19 @@ int main(int argc, char* argv[]) {
 		    map_hw_target_primary_parent_Tejin[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_target_length_Tejin[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Tejin[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Tejin[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Tejin[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Tejin[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_target_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -757,6 +861,8 @@ int main(int argc, char* argv[]) {
 	      map_hw_n3DBlobs_Tejin[intType].univHist(universe)->Fill(n3DBlobs);
 	      map_hw_nGoodBlobs_Tejin[intType].univHist(universe)->Fill(nGoodBlobs);
 	      map_hw_nBlobs_Tejin[intType].univHist(universe)->Fill(nBlobs);
+	      map_hw_AvgBlobEnergy_Tejin[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
+	      map_hw_RecoilEnergyGeV_Tejin[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
 
 	      if (TejinBlobValue==2){
 		if (leadBlobPasses) map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[intType].univHist(universe)->Fill(1);
@@ -764,6 +870,8 @@ int main(int argc, char* argv[]) {
 		map_hw_n3DBlobs_Tejin_TrackerONLY[intType].univHist(universe)->Fill(n3DBlobs);
 		map_hw_nGoodBlobs_Tejin_TrackerONLY[intType].univHist(universe)->Fill(nGoodBlobs);
 		map_hw_nBlobs_Tejin_TrackerONLY[intType].univHist(universe)->Fill(nBlobs);
+		map_hw_AvgBlobEnergy_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
+		map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
 	      }
 	    }
 	  
@@ -781,10 +889,13 @@ int main(int argc, char* argv[]) {
 
 		TVector3 FP = cand.second.GetFlightPath();
 		double length = cand.second.GetDirection().Mag();
+		double blobE = cand.second.GetTotalE();
 		double dEdx = -1.0;
-		if (length > 0.0) dEdx = cand.second.GetTotalE()/length;
+		if (length > 0.0) dEdx = blobE/length;
 		double vtxDist = FP.Mag();
 		double vtxZDist = abs(FP.Z());
+
+		blobESum += blobE;
 		/*
 		if (PTrackID > nFSPart){
 		  //Add something like this to learn how often this happened? ++nMultiIntBlobs;
@@ -797,11 +908,13 @@ int main(int argc, char* argv[]) {
 		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_ALL_length_Recoil[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -809,11 +922,13 @@ int main(int argc, char* argv[]) {
 		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_tracker_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -822,11 +937,13 @@ int main(int argc, char* argv[]) {
 		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_target_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		    map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -836,11 +953,13 @@ int main(int argc, char* argv[]) {
 		  map_hw_ALL_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_ALL_length_Recoil[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		  map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -848,11 +967,13 @@ int main(int argc, char* argv[]) {
 		    map_hw_tracker_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_tracker_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -861,11 +982,13 @@ int main(int argc, char* argv[]) {
 		    map_hw_target_primary_parent_Recoil[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_target_length_Recoil[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_Recoil[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_Recoil[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_Recoil[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_Recoil[intType].univHist(universe)->Fill(vtxZDist);
 		    map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		    map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		    map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		    map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		    map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		    map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		  }
@@ -879,7 +1002,8 @@ int main(int argc, char* argv[]) {
 	    map_hw_n3DBlobs_Recoil[intType].univHist(universe)->Fill(n3DBlobs);
 	    map_hw_nGoodBlobs_Recoil[intType].univHist(universe)->Fill(nGoodBlobs);
 	    map_hw_nBlobs_Recoil[intType].univHist(universe)->Fill(nBlobs);
-
+	    map_hw_AvgBlobEnergy_Recoil[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
+	    map_hw_RecoilEnergyGeV_Recoil[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
 	  }
 	  //Fails Tejin Recoil. I'm not going to treat the Tejin Blob Cut as special/independent of this recoil cut.
 	  else {
@@ -895,10 +1019,13 @@ int main(int argc, char* argv[]) {
 
 	      TVector3 FP = cand.second.GetFlightPath();
 	      double length = cand.second.GetDirection().Mag();
+	      double blobE = cand.second.GetTotalE();
 	      double dEdx = -1.0;
-	      if (length > 0.0) dEdx = cand.second.GetTotalE()/length;
+	      if (length > 0.0) dEdx = blobE/length;
 	      double vtxDist = FP.Mag();
 	      double vtxZDist = abs(FP.Z());
+
+	      blobESum += blobE;
 	      /*
 	      if (PTrackID > nFSPart){
 		//Add something like this to learn how often this happened? ++nMultiIntBlobs;
@@ -911,6 +1038,7 @@ int main(int argc, char* argv[]) {
 		map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -918,6 +1046,7 @@ int main(int argc, char* argv[]) {
 		  map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		}
@@ -926,6 +1055,7 @@ int main(int argc, char* argv[]) {
 		  map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[PID]);
 		  map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		}
@@ -935,6 +1065,7 @@ int main(int argc, char* argv[]) {
 		map_hw_ALL_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		map_hw_ALL_length_CCQE[intType].univHist(universe)->Fill(length);
 		map_hw_ALL_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		map_hw_ALL_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		map_hw_ALL_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		map_hw_ALL_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 
@@ -942,6 +1073,7 @@ int main(int argc, char* argv[]) {
 		  map_hw_tracker_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_tracker_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_tracker_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_tracker_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_tracker_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_tracker_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		}
@@ -950,6 +1082,7 @@ int main(int argc, char* argv[]) {
 		  map_hw_target_primary_parent_CCQE[intType].univHist(universe)->Fill(PDGbins[TopPID]);
 		  map_hw_target_length_CCQE[intType].univHist(universe)->Fill(length);
 		  map_hw_target_avg_dEdx_CCQE[intType].univHist(universe)->Fill(dEdx);
+		  map_hw_target_blobE_CCQE[intType].univHist(universe)->Fill(blobE);
 		  map_hw_target_dist_CCQE[intType].univHist(universe)->Fill(vtxDist);
 		  map_hw_target_Zdist_CCQE[intType].univHist(universe)->Fill(vtxZDist);
 		}
@@ -963,7 +1096,8 @@ int main(int argc, char* argv[]) {
 	  map_hw_n3DBlobs_CCQE[intType].univHist(universe)->Fill(n3DBlobs);
 	  map_hw_nGoodBlobs_CCQE[intType].univHist(universe)->Fill(nGoodBlobs);
 	  map_hw_nBlobs_CCQE[intType].univHist(universe)->Fill(nBlobs);
-	    
+	  map_hw_AvgBlobEnergy_CCQE[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
+	  map_hw_RecoilEnergyGeV_CCQE[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
 	}
       }
     }
