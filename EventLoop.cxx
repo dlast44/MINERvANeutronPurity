@@ -362,125 +362,125 @@ int main(int argc, char* argv[]) {
   map<int, PlotUtils::HistWrapper<CVUniverse>> map_hw_RecoilEnergyGeV_Tejin_TrackerONLY;
 
   for(auto type: typeNames){
-    map_hw_tracker_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
-    map_hw_tracker_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
-    map_hw_tracker_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-    map_hw_tracker_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE);;Blobs",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil);;Blobs",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob);;Blobs",10,0,10,error_bands);
+    map_hw_tracker_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob);;Blobs",10,0,10,error_bands);
 
-    map_hw_tracker_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE)",50,0,500,error_bands);
-    map_hw_tracker_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil)",50,0,500,error_bands);
-    map_hw_tracker_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
-    map_hw_tracker_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
+    map_hw_tracker_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_tracker_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_tracker_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_tracker_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob);Len. [mm];Blobs",50,0,500,error_bands);
 
-    map_hw_tracker_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
-    map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_tracker_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
 
-    map_hw_tracker_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
-    map_hw_tracker_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
-    map_hw_tracker_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
-    map_hw_tracker_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
+    map_hw_tracker_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_tracker_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_tracker_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_tracker_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob);E [MeV];Blobs",50,0,150,error_bands);
 
-    map_hw_tracker_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_tracker_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_tracker_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_tracker_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_tracker_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_tracker_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_tracker_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_tracker_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_tracker_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_tracker_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_tracker_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_tracker_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_target_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
-    map_hw_target_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
-    map_hw_target_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-    map_hw_target_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+    map_hw_target_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE);;Blobs",10,0,10,error_bands);
+    map_hw_target_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil);;Blobs",10,0,10,error_bands);
+    map_hw_target_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob);;Blobs",10,0,10,error_bands);
+    map_hw_target_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob);;Blobs",10,0,10,error_bands);
 
-    map_hw_target_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE)",50,0,500,error_bands);
-    map_hw_target_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil)",50,0,500,error_bands);
-    map_hw_target_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
-    map_hw_target_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
+    map_hw_target_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_target_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_target_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_target_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob);Len. [mm];Blobs",50,0,500,error_bands);
 
-    map_hw_target_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
-    map_hw_target_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
-    map_hw_target_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
-    map_hw_target_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_target_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
 
-    map_hw_target_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
-    map_hw_target_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
-    map_hw_target_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
-    map_hw_target_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
+    map_hw_target_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_target_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_target_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_target_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob);E [MeV];Blobs",50,0,150,error_bands);
 
-    map_hw_target_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_target_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_target_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_target_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_target_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_target_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_target_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_target_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_target_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_target_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_target_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_target_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_ALL_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE)",10,0,10,error_bands);
-    map_hw_ALL_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil)",10,0,10,error_bands);
-    map_hw_ALL_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob)",10,0,10,error_bands);
-    map_hw_ALL_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_CCQE_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE);;Blobs",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Recoil_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil);;Blobs",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob);;Blobs",10,0,10,error_bands);
+    map_hw_ALL_primary_parent_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_primary_parent_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Primary Particle Matched To Blob (CCQE, Recoil, Blob, Tracker Blob);;Blobs",10,0,10,error_bands);
 
-    map_hw_ALL_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE)",50,0,500,error_bands);
-    map_hw_ALL_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil)",50,0,500,error_bands);
-    map_hw_ALL_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob)",50,0,500,error_bands);
-    map_hw_ALL_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob)",50,0,500,error_bands);
+    map_hw_ALL_length_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_CCQE_"+type.second,"True "+type.second+" Blob Length (CCQE);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_ALL_length_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Recoil_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_ALL_length_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob);Len. [mm];Blobs",50,0,500,error_bands);
+    map_hw_ALL_length_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_length_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Length (CCQE, Recoil, Blob, Tracker Blob);Len. [mm];Blobs",50,0,500,error_bands);
 
-    map_hw_ALL_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE)",25,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil)",25,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob)",25,0,50,error_bands);
-    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob)",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_CCQE_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Recoil_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
+    map_hw_ALL_avg_dEdx_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_avg_dEdx_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy/Length (CCQE, Recoil, Blob, Tracker Blob);dE/dx [MeV/mm];Blobs",25,0,50,error_bands);
 
-    map_hw_ALL_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE)",50,0,150,error_bands);
-    map_hw_ALL_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil)",50,0,150,error_bands);
-    map_hw_ALL_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob)",50,0,150,error_bands);
-    map_hw_ALL_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,150,error_bands);
+    map_hw_ALL_blobE_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_CCQE_"+type.second,"True "+type.second+" Blob Energy (CCQE);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_ALL_blobE_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Recoil_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_ALL_blobE_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob);E [MeV];Blobs",50,0,150,error_bands);
+    map_hw_ALL_blobE_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_blobE_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Energy (CCQE, Recoil, Blob, Tracker Blob);E [MeV];Blobs",50,0,150,error_bands);
 
-    map_hw_ALL_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_ALL_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_ALL_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_ALL_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_ALL_dist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_CCQE_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_dist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Recoil_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_dist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Tejin_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_dist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_dist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_ALL_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE)",300,0,3000,error_bands);
-    map_hw_ALL_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil)",300,0,3000,error_bands);
-    map_hw_ALL_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob)",300,0,3000,error_bands);
-    map_hw_ALL_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob)",300,0,3000,error_bands);
+    map_hw_ALL_Zdist_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_CCQE_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_Zdist_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Recoil_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_Zdist_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Tejin_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
+    map_hw_ALL_Zdist_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_ALL_Zdist_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Blob Absolute Z Dist. To Vtx. (CCQE, Recoil, Blob, Tracker Blob);Dist. [mm];Blobs",300,0,3000,error_bands);
 
-    map_hw_leadBlob_passes_classifier_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_CCQE_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE)",2,0,2,error_bands);
-    map_hw_leadBlob_passes_classifier_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Recoil_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil)",2,0,2,error_bands);
-    map_hw_leadBlob_passes_classifier_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob)",2,0,2,error_bands);
-    map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob, Tracker Blob)",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_CCQE_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE);;Events",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Recoil_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil);;Events",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob);;Events",2,0,2,error_bands);
+    map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_leadBlob_passes_classifier_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Leading Blob Passes (CCQE, Recoil, Blob, Tracker Blob);;Events",2,0,2,error_bands);
 
-    map_hw_n3DBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_CCQE_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE)",10,0,10,error_bands);
-    map_hw_n3DBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Recoil_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil)",10,0,10,error_bands);
-    map_hw_n3DBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Tejin_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil, Blob)",10,0,10,error_bands);
-    map_hw_n3DBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+    map_hw_n3DBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_CCQE_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE);No.;Events",10,0,10,error_bands);
+    map_hw_n3DBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Recoil_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil);No.;Events",10,0,10,error_bands);
+    map_hw_n3DBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Tejin_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil, Blob);No.;Events",10,0,10,error_bands);
+    map_hw_n3DBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_n3DBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. 3D Blobs (CCQE, Recoil, Blob, Tracker Blob);No.;Events",10,0,10,error_bands);
 
-    map_hw_nGoodBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_CCQE_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE)",10,0,10,error_bands);
-    map_hw_nGoodBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Recoil_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil)",10,0,10,error_bands);
-    map_hw_nGoodBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Tejin_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil, Blob)",10,0,10,error_bands);
-    map_hw_nGoodBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil, Blob, Tracker Blob)",10,0,10,error_bands);
+    map_hw_nGoodBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_CCQE_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE);No.;Events",10,0,10,error_bands);
+    map_hw_nGoodBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Recoil_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil);No.;Events",10,0,10,error_bands);
+    map_hw_nGoodBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Tejin_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil, Blob);No.;Events",10,0,10,error_bands);
+    map_hw_nGoodBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nGoodBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. Blobs Which Pass (CCQE, Recoil, Blob, Tracker Blob);No.;Events",10,0,10,error_bands);
 
-    map_hw_nBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_CCQE_"+type.second,"True "+type.second+" No. of Blobs (CCQE)",100,0,100,error_bands);
-    map_hw_nBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Recoil_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil)",100,0,100,error_bands);
-    map_hw_nBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob)",100,0,100,error_bands);
-    map_hw_nBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob, Tracker Blob)",100,0,100,error_bands);
+    map_hw_nBlobs_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_CCQE_"+type.second,"True "+type.second+" No. of Blobs (CCQE);No.;Events",100,0,100,error_bands);
+    map_hw_nBlobs_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Recoil_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil);No.;Events",100,0,100,error_bands);
+    map_hw_nBlobs_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob);No.;Events",100,0,100,error_bands);
+    map_hw_nBlobs_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_nBlobs_Tejin_TrackerONLY_"+type.second,"True "+type.second+" No. of Blobs (CCQE, Recoil, Blob, Tracker Blob);No.;Events",100,0,100,error_bands);
 
-    map_hw_AvgBlobEnergy_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_CCQE_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE)",50,0,50,error_bands);
-    map_hw_AvgBlobEnergy_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Recoil_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil)",50,0,50,error_bands);
-    map_hw_AvgBlobEnergy_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob)",50,0,50,error_bands);
-    map_hw_AvgBlobEnergy_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_CCQE_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE);Avg. E [MeV];Events",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Recoil_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil);Avg. E [MeV];Events",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob);Avg. E [MeV];Events",50,0,50,error_bands);
+    map_hw_AvgBlobEnergy_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_AvgBlobEnergy_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Avg. Blob Energy (CCQE, Recoil, Blob, Tracker Blob);Avg. E [MeV];Events",50,0,50,error_bands);
 
-    map_hw_RecoilEnergyGeV_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_CCQE_"+type.second,"True "+type.second+" Recoil Energy (CCQE)",50,0,1.5,error_bands);
-    map_hw_RecoilEnergyGeV_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Recoil_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil)",50,0,1.5,error_bands);
-    map_hw_RecoilEnergyGeV_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob)",50,0,1.5,error_bands);
-    map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob, Tracker Blob)",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_CCQE[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_CCQE_"+type.second,"True "+type.second+" Recoil Energy (CCQE);RecoilE [GeV];Events",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Recoil[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Recoil_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil);RecoilE [GeV];Events",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Tejin[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob);RecoilE [GeV];Events",50,0,1.5,error_bands);
+    map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[type.first]=PlotUtils::HistWrapper<CVUniverse>("hw_RecoilEnergyGeV_Tejin_TrackerONLY_"+type.second,"True "+type.second+" Recoil Energy (CCQE, Recoil, Blob, Tracker Blob);RecoilE [GeV];Events",50,0,1.5,error_bands);
   }
 
   vector<PlotUtils::HistWrapper<CVUniverse>*> histsALL ={
