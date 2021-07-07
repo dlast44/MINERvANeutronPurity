@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event>0 if you want constraint otherwise> <PCEnergyCut>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -72,11 +72,13 @@ bool PassesFVCuts(CVUniverse& univ, int region){
   return false;
 }
 
-bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC){
+bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC, double ECut=10000.0){
   int MINOSMatch=0;
   if (isPC){
     //    MINOSMatch=univ.GetIsMinosMatchTrackOLD();
     MINOSMatch=1;
+    TLorentzVector prim_part(univ.GetFSPartPx().at(0),univ.GetFSPartPy().at(0),univ.GetFSPartPz().at(0),univ.GetFSPartE().at(0));
+    if ((prim_part.E()-prim_part.M()) > ECut) return false;
   }
   else{
     MINOSMatch=univ.GetHasInteractionVertex();
@@ -131,11 +133,13 @@ int PassesTejinBlobCuts(CVUniverse& univ){
   }
 }
 
-bool PassesCuts(CVUniverse& univ, int isPC, int region){
-  //cout << "HELLO" << endl;
+bool PassesCuts(CVUniverse& univ, int isPC, int region, double ECut=10000.0){
+  if (ECut <= 0.0){
+    ECut = 10000.0;
+  }
   return
     PassesFVCuts(univ, region) &&
-    PassesCleanCCAntiNuCuts(univ, isPC) &&
+    PassesCleanCCAntiNuCuts(univ, isPC, ECut) &&
     PassesTejinCCQECuts(univ);
 }
 
@@ -159,7 +163,7 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc < 6 || argc > 7) {
+  if (argc < 6 || argc > 8) {
     cout << "Check usage..." << endl;
     return 2;
   }
@@ -170,9 +174,13 @@ int main(int argc, char* argv[]) {
   string outDir=string(argv[4]);
   string tag=string(argv[5]);
   int nEntries=0;
+  double PCECut=-1.0;
 
-  if (argc == 7){
-    nEntries=atoi(argv[6]);
+  if (argc >= 7){
+    if nEntries=atoi(argv[6]);
+  }
+  if (argc==8){
+    PCECut=atof(argv[7]);
   }
 
   if (PathExists(outDir)){
@@ -605,7 +613,7 @@ int main(int argc, char* argv[]) {
     &map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[1],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[2],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[3],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[8],&map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[0]
   };
 
-  if(!nEntries) nEntries = chain->GetEntries();
+  if(nEntries <= 0) nEntries = chain->GetEntries();
   cout << "Processing " << nEntries << " events." << endl;
   int n3DBlobs=0;
   int nGoodBlobs=0;
@@ -624,7 +632,7 @@ int main(int argc, char* argv[]) {
 	int nBlobs = universe->GetNNeutCands();
 	
 	//Passes CCQE Cuts that matche Tejin's selection
-	if (PassesCuts(*universe, isPC, region)){
+	if (PassesCuts(*universe, isPC, region, PCECut)){
 	  
 	  //int nFSPart = universe->GetNFSPart();
 	  int intType = universe->GetInteractionType();

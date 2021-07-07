@@ -63,6 +63,16 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
 
   virtual int GetNFSPart() const { return GetInt("mc_nFSPart"); };
 
+  virtual std::vector<int> GetFSPartPDG() const { return GetVec<int>("mc_FSPartPDG"); };
+
+  virtual std::vector<double> GetFSPartE() const { return GetVec<double>("mc_FSPartE"); };
+
+  virtual std::vector<double> GetFSPartPx() const { return GetVec<double>("mc_FSPartPx"); };
+  virtual std::vector<double> GetFSPartPy() const { return GetVec<double>("mc_FSPartPy"); };
+  virtual std::vector<double> GetFSPartPz() const { return GetVec<double>("mc_FSPartPz"); };
+
+
+
   virtual int GetNImprovedMichel() const { return GetInt("improved_michel_vertex_type_sz"); };
 
   virtual int GetNDeadDiscriminatorsUpstreamMuon() const { return GetInt("phys_n_dead_discr_pair_upstream_prim_track_proj"); };
