@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event g.t. 0 if you want constraint otherwise it'll do all> <PC non-muon EnergyCut>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <1="Dan's",anything else default> <output_directory> <tag_for_naming_files> optional: <n_event g.t. 0 if you want constraint otherwise it'll do all> <PC non-muon EnergyCut>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -93,10 +93,11 @@ bool PassesCleanCCAntiNuCuts(CVUniverse& univ, int isPC, double ECut=10000.0){
 }
 
 //Should Code the more general anti-nu CCQE cuts at some point... but this is a focus for Tejin stuff...
-bool PassesTejinRecoilCut(CVUniverse& univ, int isPC){
+bool PassesTejinRecoilCut(CVUniverse& univ, int isPC, int whichRecoil){
   if (isPC) return true;
   double Q2GeV = univ.GetQ2QEPickledGeV();
   double recoilEGeV = univ.GetRecoilEnergyGeV();
+  if (whichRecoil == 1) recoilEGeV = univ.GetDANRecoilEnergyGeV();
   if (Q2GeV < 0.0 || recoilEGeV < 0.0) return false;
   else if (Q2GeV < 0.3) return (recoilEGeV < (0.04+0.43*Q2GeV));
   else if (Q2GeV < 1.4) return (recoilEGeV < (0.08+0.3*Q2GeV));
@@ -163,7 +164,7 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc < 6 || argc > 8) {
+  if (argc < 7 || argc > 9) {
     cout << "Check usage..." << endl;
     return 2;
   }
@@ -171,16 +172,17 @@ int main(int argc, char* argv[]) {
   string playlist=string(argv[1]);
   int isPC=atoi(argv[2]);
   int region=atoi(argv[3]);
-  string outDir=string(argv[4]);
-  string tag=string(argv[5]);
+  int whichRecoil=atoi(argv[4]);
+  string outDir=string(argv[5]);
+  string tag=string(argv[6]);
   int nEntries=0;
   double PCECut=-1.0;
 
-  if (argc >= 7){
-    nEntries=atoi(argv[6]);
+  if (argc >= 8){
+    nEntries=atoi(argv[7]);
   }
-  if (argc==8){
-    PCECut=atof(argv[7]);
+  if (argc==9){
+    PCECut=atof(argv[8]);
   }
 
   if (PathExists(outDir)){
@@ -630,7 +632,9 @@ int main(int argc, char* argv[]) {
 	universe->SetEntry(i);
 	universe->UpdateNeutCands();
 	int nBlobs = universe->GetNNeutCands();
-	
+	double recoilEnergy = universe->GetRecoilEnergyGeV();
+	if (whichRecoil==1) recoilEnergy = universe->GetDANRecoilEnergyGeV();
+
 	//Passes CCQE Cuts that matche Tejin's selection
 	if (PassesCuts(*universe, isPC, region, PCECut)){
 	  
@@ -649,7 +653,7 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  //Passes Tejin Recoil and Blob
-	  if (PassesTejinRecoilCut(*universe, isPC)){
+	  if (PassesTejinRecoilCut(*universe, isPC, whichRecoil)){
 	    
 	    int TejinBlobValue = PassesTejinBlobCuts(*universe);
 	    //Passes Tejin Recoil and Blob
@@ -870,7 +874,7 @@ int main(int argc, char* argv[]) {
 	      map_hw_nGoodBlobs_Tejin[intType].univHist(universe)->Fill(nGoodBlobs);
 	      map_hw_nBlobs_Tejin[intType].univHist(universe)->Fill(nBlobs);
 	      map_hw_AvgBlobEnergy_Tejin[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
-	      map_hw_RecoilEnergyGeV_Tejin[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
+	      map_hw_RecoilEnergyGeV_Tejin[intType].univHist(universe)->Fill(recoilEnergy);
 
 	      if (TejinBlobValue==2){
 		if (leadBlobPasses) map_hw_leadBlob_passes_classifier_Tejin_TrackerONLY[intType].univHist(universe)->Fill(1);
@@ -879,7 +883,7 @@ int main(int argc, char* argv[]) {
 		map_hw_nGoodBlobs_Tejin_TrackerONLY[intType].univHist(universe)->Fill(nGoodBlobs);
 		map_hw_nBlobs_Tejin_TrackerONLY[intType].univHist(universe)->Fill(nBlobs);
 		map_hw_AvgBlobEnergy_Tejin_TrackerONLY[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
-		map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
+		map_hw_RecoilEnergyGeV_Tejin_TrackerONLY[intType].univHist(universe)->Fill(recoilEnergy);
 	      }
 	    }
 	  
@@ -1011,7 +1015,7 @@ int main(int argc, char* argv[]) {
 	    map_hw_nGoodBlobs_Recoil[intType].univHist(universe)->Fill(nGoodBlobs);
 	    map_hw_nBlobs_Recoil[intType].univHist(universe)->Fill(nBlobs);
 	    map_hw_AvgBlobEnergy_Recoil[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
-	    map_hw_RecoilEnergyGeV_Recoil[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
+	    map_hw_RecoilEnergyGeV_Recoil[intType].univHist(universe)->Fill(recoilEnergy);
 	  }
 	  //Fails Tejin Recoil. I'm not going to treat the Tejin Blob Cut as special/independent of this recoil cut.
 	  else {
@@ -1105,7 +1109,7 @@ int main(int argc, char* argv[]) {
 	  map_hw_nGoodBlobs_CCQE[intType].univHist(universe)->Fill(nGoodBlobs);
 	  map_hw_nBlobs_CCQE[intType].univHist(universe)->Fill(nBlobs);
 	  map_hw_AvgBlobEnergy_CCQE[intType].univHist(universe)->Fill(blobESum/((double)(nBlobs)));
-	  map_hw_RecoilEnergyGeV_CCQE[intType].univHist(universe)->Fill(universe->GetRecoilEnergyGeV());
+	  map_hw_RecoilEnergyGeV_CCQE[intType].univHist(universe)->Fill(recoilEnergy);
 	}
       }
     }
