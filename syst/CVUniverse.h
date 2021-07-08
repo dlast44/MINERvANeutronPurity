@@ -86,7 +86,7 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
 
   virtual double GetCalRecoilEnergy() const{
     if (GetVec<double>("recoil_summed_energy").size()==0) return -999.0;
-    return (GetVec<double>("recoil_summed_energy")[0]-GetDouble("recoil_energy_nonmuon_nonvtx100mm"));
+    return (GetVec<double>("recoil_summed_energy")[0]-GetDouble("recoil_energy_nonmuon_vtx100mm"));
   };
 
   virtual double GetNonCalRecoilEnergy() const{

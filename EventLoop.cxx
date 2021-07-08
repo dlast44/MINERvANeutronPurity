@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event>0 if you want constraint otherwise> <PCEnergyCut>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <output_directory> <tag_for_naming_files> optional: <n_event g.t. 0 if you want constraint otherwise it'll do all> <PC non-muon EnergyCut>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
   double PCECut=-1.0;
 
   if (argc >= 7){
-    if nEntries=atoi(argv[6]);
+    nEntries=atoi(argv[6]);
   }
   if (argc==8){
     PCECut=atof(argv[7]);
