@@ -59,6 +59,10 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
 
   virtual int GetInteractionType() const { return GetInt("mc_intType"); };
 
+  virtual int GetMCIncoming() const { return GetInt("mc_incoming"); };
+
+  virtual int GetMCCurrent() const { return GetInt("mc_current"); };
+
   virtual std::vector<double> GetVtx() const { return GetVec<double>("vtx"); };
 
   virtual int GetNFSPart() const { return GetInt("mc_nFSPart"); };
@@ -70,8 +74,6 @@ class CVUniverse: public PlotUtils::MinervaUniverse {
   virtual std::vector<double> GetFSPartPx() const { return GetVec<double>("mc_FSPartPx"); };
   virtual std::vector<double> GetFSPartPy() const { return GetVec<double>("mc_FSPartPy"); };
   virtual std::vector<double> GetFSPartPz() const { return GetVec<double>("mc_FSPartPz"); };
-
-
 
   virtual int GetNImprovedMichel() const { return GetInt("improved_michel_vertex_type_sz"); };
 

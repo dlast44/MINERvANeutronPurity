@@ -1,7 +1,7 @@
 //File: EventLoop.cxx
 //Info: This is a script to run a loop over all events in a single nTuple file and perform some plotting. Will eventually exist as the basis for the loops over events in analysis.
 //
-//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <1="Dan's",anything else default> <output_directory> <tag_for_naming_files> optional: <n_event g.t. 0 if you want constraint otherwise it'll do all> <PC non-muon EnergyCut>
+//Usage: EventLoop.cxx <MasterAnaDev_NTuple_list/single_file> <0=MC/1=PC> <0=tracker/1=targets/2=both> <0=trueSignalOnly/1=trueBackgroundOnly/2=all> <output_directory> <tag_for_naming_files> optional: <n_event g.t. 0 if you want constraint otherwise it'll do all> <1="Dan's",anything else default> <PC non-muon EnergyCut>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
@@ -144,6 +144,43 @@ bool PassesCuts(CVUniverse& univ, int isPC, int region, double ECut=10000.0){
     PassesTejinCCQECuts(univ);
 }
 
+bool IsTrueSignal(CVUniverse& univ){
+  int current = univ.GetMCCurrent();
+  int incoming = univ.GetMCIncoming();
+
+  if (current != 1 || incoming != -14) return false;
+
+  int genie_n_muons = 0;
+  int genie_n_mesons = 0;
+  int genie_n_heavy_baryons_plus_pi0s = 0;
+  int genie_n_photons =0;
+  int genie_n_protons = 0;
+
+  vector<int> PDGs = univ.GetFSPartPDG();
+  vector<double> Es = univ.GetFSPartE();
+
+  for (unsigned int i=0; i<PDGs.size(); ++i){
+    int pdg = PDGs.at(i);
+    double energy = Es.at(i);
+    double proton_E = 1058.272;
+    if (abs(pdg) == 13) genie_n_muons++;
+    else if ( pdg == 22  && energy > 10) genie_n_photons++;
+    else if ( abs(pdg) == 211 || abs(pdg) == 321 || abs(pdg) == 323 || pdg == 111 || pdg == 130 || pdg == 310 || pdg == 311 || pdg == 313 ){
+      genie_n_mesons++;
+    }
+    else if ( pdg == 3112 || pdg == 3122 || pdg == 3212 || pdg == 3222 || pdg == 4112 || pdg == 4122 || pdg == 4222 || pdg == 411 || pdg == 421 || pdg == 111){
+      genie_n_heavy_baryons_plus_pi0s++;
+    }
+    else if ( pdg == 2212 && energy > proton_E ) genie_n_protons++;
+  }
+
+  return genie_n_muons == 1 && 
+    genie_n_mesons == 0 && 
+    genie_n_heavy_baryons_plus_pi0s == 0 && 
+    genie_n_photons == 0 && 
+    genie_n_protons == 0;
+}
+
 bool PathExists(string path){
   struct stat buffer;
   return (stat (path.c_str(), &buffer) == 0);
@@ -164,7 +201,7 @@ int main(int argc, char* argv[]) {
   #endif
 
   //Pass an input file name to this script now
-  if (argc < 7 || argc > 9) {
+  if (argc < 7 || argc > 10) {
     cout << "Check usage..." << endl;
     return 2;
   }
@@ -172,17 +209,21 @@ int main(int argc, char* argv[]) {
   string playlist=string(argv[1]);
   int isPC=atoi(argv[2]);
   int region=atoi(argv[3]);
-  int whichRecoil=atoi(argv[4]);
+  int sample=atoi(argv[4]);
   string outDir=string(argv[5]);
   string tag=string(argv[6]);
   int nEntries=0;
+  int whichRecoil=0;
   double PCECut=-1.0;
 
   if (argc >= 8){
     nEntries=atoi(argv[7]);
   }
-  if (argc==9){
-    PCECut=atof(argv[8]);
+  if (argc>=9){
+    whichRecoil=atoi(argv[8]);
+  }
+  if (argc == 10){
+    PCECut=atof(argv[9]);
   }
 
   if (PathExists(outDir)){
@@ -196,6 +237,11 @@ int main(int argc, char* argv[]) {
   if (region < 0 || region > 2){
     cout << "Check usage for meaning of different regions." << endl;
     return 4;
+  } 
+
+  if (sample < 0 || sample > 2){
+    cout << "Check usage for meaning of different samples." << endl;
+    return 5;
   } 
 
   string txtExt = ".txt";
@@ -228,6 +274,7 @@ int main(int argc, char* argv[]) {
   cout << "Input file name parsed to: " << playlistStub << endl;
 
   map<int,TString>regionNames={{0,"tracker"},{1,"nuke"},{2,"fullID"},};
+  map<int,TString>sampleNames={{0,"Signal"},{1,"Background"},{2, "AllSelected"}};
 
   unordered_map<int,int> PDGbins;
   PDGbins[2112] = 2;
@@ -634,7 +681,8 @@ int main(int argc, char* argv[]) {
 	int nBlobs = universe->GetNNeutCands();
 	double recoilEnergy = universe->GetRecoilEnergyGeV();
 	if (whichRecoil==1) recoilEnergy = universe->GetDANRecoilEnergyGeV();
-
+	if (sample == 0 && !IsTrueSignal(*universe)) continue;
+	else if (sample == 1 && IsTrueSignal(*universe)) continue;
 	//Passes CCQE Cuts that matche Tejin's selection
 	if (PassesCuts(*universe, isPC, region, PCECut)){
 	  
@@ -1115,7 +1163,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  TFile* outFile = new TFile((TString)(outDir)+"runEventLoop_region_"+regionNames[region]+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.root","RECREATE");
+  TFile* outFile = new TFile((TString)(outDir)+"runEventLoop_sample_"+sampleNames[sample]+"_region_"+regionNames[region]+"_"+TString(playlistStub)+"_"+TString(tag)+"_"+TString(to_string(nEntries))+"_Events.root","RECREATE");
   cout << "Writing" << endl;
   for (auto band : error_bands){
     int i=0;
