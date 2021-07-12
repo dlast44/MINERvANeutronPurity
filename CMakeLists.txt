@@ -55,6 +55,7 @@ message("Included PlotUtils from ${PlotUtils_INCLUDE_DIR}")
 add_executable(EventLoop EventLoop.cxx)
 add_executable(TestLoop TestLoop.cxx)
 add_executable(All1DIntTypeStackedPlots All1DIntTypeStackedPlots.cxx)
+add_executable(All1DIntTypeStackedPlots_SignalBKG All1DIntTypeStackedPlots_SignalBKG.cxx)
 
 #Build libraries that EventLoop depends on
 add_subdirectory(obj)
@@ -63,8 +64,10 @@ add_subdirectory(obj)
 target_link_libraries(EventLoop ${ROOT_LIBRARIES} PlotUtils obj)
 target_link_libraries(TestLoop ${ROOT_LIBRARIES} PlotUtils obj)
 target_link_libraries(All1DIntTypeStackedPlots ${ROOT_LIBRARIES} PlotUtils)
+target_link_libraries(All1DIntTypeStackedPlots_SignalBKG ${ROOT_LIBRARIES} PlotUtils)
 
 #install
 install(TARGETS EventLoop DESTINATION bin)
 install(TARGETS TestLoop DESTINATION bin)
 install(TARGETS All1DIntTypeStackedPlots DESTINATION bin)
+install(TARGETS All1DIntTypeStackedPlots_SignalBKG DESTINATION bin)

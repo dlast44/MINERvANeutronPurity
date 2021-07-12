@@ -1,7 +1,7 @@
 //File: All1DIntTypeStackedPlots.cxx
 //Info: This is a script to run a loop over all MC int type sorted plots in a single histos file and save nice plots from them.
 //
-//Usage: All1DIntTypeStackedPlots <histos_file> <output_directory>
+//Usage: All1DIntTypeStackedPlots <histos_file> <output_directory> <name_of_data_sample>
 //Author: David Last dlast@sas.upenn.edu/lastd44@gmail.com
 
 //C++ includes
