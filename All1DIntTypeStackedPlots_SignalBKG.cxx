@@ -150,6 +150,11 @@ TCanvas* DrawToCanvas(string name_QE, TFile* sig_file, TFile* bkg_file, TString 
     h->GetXaxis()->SetTitleSize(0.045);
   }
 
+  pos=0;
+  if ((pos=name.find("_nBlobs_")) != string::npos){
+    h->GetXaxis()->SetRangeUser(0,20);
+  }
+
   h->Draw("hist");
   c1->Update();
 
